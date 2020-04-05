@@ -1,0 +1,34 @@
+.error-entries {}
+
+.error-entry {
+  display: flex;
+
+  padding: 8px;
+  margin-bottom: 8px;
+
+  background-color: #FEEDE9;
+  border-radius: 5px;
+}
+
+.error-icon {
+  width: 32px;
+  margin-right: 8px;
+
+  fill: #F24822;
+}
+
+.error-info {
+  flex: 1;
+}
+
+.error-context {
+  user-select: none;
+}
+
+.error-view {
+  cursor: pointer;
+}
+
+.error-view:hover {
+  color: #F24822;
+}
