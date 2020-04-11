@@ -1,6 +1,8 @@
 const indicationMark: string = '$$$';
 
-// Get all frames that will be processed
+/**
+ * Get all frames that start with a specific string
+ */
 export default function () {
   let frameList: FrameNode[] = [];
 
