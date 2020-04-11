@@ -1,28 +1,34 @@
-.error-entry {
-  display: flex;
-
-  padding: 8px;
-  margin-bottom: 8px;
-
-  background-color: #FEEDE9;
-  border-radius: 5px;
+:root {
+  --error-red: #FEEDE9;
 }
 
-.error-icon {
-  width: 32px;
-  margin-right: 8px;
+.error {
+  &-entry {
+    display: flex;
 
-  fill: #F24822;
-}
+    padding: 8px;
+    margin-bottom: 8px;
 
-.error-info {
-  flex: 1;
-}
+    background-color: var(--error-red);
+    border-radius: 5px;
+  }
 
-.error-name {
-  cursor: zoom-in;
-}
+  &-icon {
+    width: 32px;
+    margin-right: 8px;
 
-.error-context {
-  user-select: none;
+    fill: #F24822;
+  }
+
+  &-info {
+    flex: 1;
+  }
+
+  &-name {
+    cursor: zoom-in;
+  }
+
+  &-context {
+    user-select: none;
+  }
 }

@@ -24,6 +24,11 @@
   },
   "devDependencies": {
     "@types/react": "^16.9.32",
-    "@types/react-dom": "^16.9.6"
+    "@types/react-dom": "^16.9.6",
+    "postcss-calc": "^7.0.2",
+    "postcss-css-variables": "^0.14.0",
+    "postcss-import": "^12.0.1",
+    "postcss-loader": "^3.0.0",
+    "postcss-nested": "^4.2.1"
   }
 }
