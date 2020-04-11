@@ -1,25 +1,30 @@
-const indicationMark = '$$$';
-const separatingMarks = [' ', '/', '_', '-'];
-const multipleSizeMarks = ['|', ','];
-const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
-const uiWidth = 350;
+const indicationMark: string = '$$$';
+const separatingMarks: string[] = [' ', '/', '_', '-'];
+const multipleSizeMarks: string[] = ['|', ','];
+const clipPathPattern: RegExp = new RegExp(/clip(-?)path/, 'gim');
+const uiWidth: number = 350;
 
-// Render UI but keep it hidden
-// figma.showUI(__html__, { visible: false });
 
 // Get all frames that will be processed
 function findFrames() {
-  return figma.currentPage.findAll(node => {
-    return node.type === 'FRAME' && node.name.startsWith(indicationMark);
-  })
+  let frameList: FrameNode[] = [];
+
+  for (const child of figma.currentPage.children) {
+    if (child.type !== 'FRAME') { continue }
+    if (!child.name.startsWith(indicationMark)) { continue }
+
+    frameList.push(child);
+  }
+
+  return frameList;
 };
 
-async function main() {
+async function main(): Promise<void> {
   let exportableAssets = [];
-  let errorNodes = [];
+  let errorNodes: ErrorEntry[];
 
   // Get all frames that will be processed
-  const originalNodeList = findFrames();
+  const originalNodeList: FrameNode[] = findFrames();
 
   // Clone selected nodes
   for (const node of originalNodeList) {
@@ -27,8 +32,9 @@ async function main() {
   }
 
   // Array with the IDs of all nodes inside originalNodeList
-  const originalNodeIdList = originalNodeList.map((node) => node.id);
-  const clonedNodeList = findFrames().filter((node) => {
+  const originalNodeIdList: string[] = originalNodeList.map((node) => node.id);
+
+  const clonedNodeList: FrameNode[] = findFrames().filter((node) => {
     return !originalNodeIdList.includes(node.id);
   });
 
@@ -62,18 +68,18 @@ async function main() {
 
 
 
-    // for (const component of nodeList) {
-    //   const unit8 = await component.exportAsync({ format: 'SVG' });
-    //   const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
+  // for (const component of nodeList) {
+  //   const unit8 = await component.exportAsync({ format: 'SVG' });
+  //   const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
 
-    //   const slashExp = new RegExp(' ?\/ ?', 'gi');
-    //   const name = component.name.replace(slashExp, '/');
+  //   const slashExp = new RegExp(' ?\/ ?', 'gi');
+  //   const name = component.name.replace(slashExp, '/');
 
-    //   exportableAssets.push({
-    //     name,
-    //     svgCode
-    //   })
-    // }
+  //   exportableAssets.push({
+  //     name,
+  //     svgCode
+  //   })
+  // }
   // }
 
   // figma.showUI(__html__, { visible: false });
