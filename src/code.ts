@@ -77,33 +77,26 @@ async function main(): Promise<void> {
 
     figma.showUI(__html__, { visible: true, width: uiWidth });
     figma.ui.postMessage({ name: 'contentError', content: errorNodes });
+  } else {
+    for (const node of clonedNodeList) {
+      const unit8 = await node.exportAsync({ format: 'SVG' });
+      const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
+
+      const slashExp = new RegExp(' ?\/ ?', 'gi');
+      const name = node.name.replace(slashExp, '/');
+
+      exportableAssets.push({
+        name,
+        svgCode
+      })
+    }
+
+    figma.showUI(__html__, { visible: false });
+    figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
   }
-
-
-
-
-
-
-  // for (const component of nodeList) {
-  //   const unit8 = await component.exportAsync({ format: 'SVG' });
-  //   const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
-
-  //   const slashExp = new RegExp(' ?\/ ?', 'gi');
-  //   const name = component.name.replace(slashExp, '/');
-
-  //   exportableAssets.push({
-  //     name,
-  //     svgCode
-  //   })
-  // }
-  // }
-
-  // figma.showUI(__html__, { visible: false });
-  // figma.ui.postMessage({ exportableAssets });
 }
 
 main();
-// correctPosition();
 
 figma.ui.onmessage = (message) => {
   if (message === 'done') {
