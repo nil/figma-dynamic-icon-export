@@ -1,23 +1,10 @@
-const indicationMark: string = '$$$';
+import detachInstance from './utils/detachInstance';
+import findFrames from './utils/findFrames';
+
 const separatingMarks: string[] = [' ', '/', '_', '-'];
 const multipleSizeMarks: string[] = ['|', ','];
 const clipPathPattern: RegExp = new RegExp(/clip(-?)path/, 'gim');
 const uiWidth: number = 350;
-
-
-// Get all frames that will be processed
-function findFrames() {
-  let frameList: FrameNode[] = [];
-
-  for (const child of figma.currentPage.children) {
-    if (child.type !== 'FRAME') { continue }
-    if (!child.name.startsWith(indicationMark)) { continue }
-
-    frameList.push(child);
-  }
-
-  return frameList;
-};
 
 async function main(): Promise<void> {
   let exportableAssets = [];
@@ -41,6 +28,12 @@ async function main(): Promise<void> {
   for (const node of clonedNodeList) {
     node.y = node.y + 56;
 
+    for (const child of node.children) {
+      if (child.type === 'INSTANCE') {
+        detachInstance(child);
+      }
+    }
+
     // Merge all paths
     figma.union(node.children, node);
 
@@ -57,7 +50,6 @@ async function main(): Promise<void> {
     }
   }
 
-  // console.log(errorNodes);
   if (errorNodes.length > 0) {
     figma.showUI(__html__, { visible: true, width: uiWidth });
     figma.ui.postMessage({ name: 'contentError', content: errorNodes });
