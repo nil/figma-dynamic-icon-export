@@ -57,22 +57,19 @@ export default function(): FrameNode[] | undefined {
     node.clone()
   });
 
-  const originalIdList: string[] = originalList.map((node) => node.id);
-  const cloneList: FrameNode[] = findFrames().filter((node) => !originalIdList.includes(node.id));
+  // Throw error if there is a duplicated layer name
   const sameNameList = checkDuplicatedNames(originalList);
-
-  console.log(sameNameList);
-
+  const preRenameCloneList: FrameNode[] = findFrames().filter((node) => {
+    return !originalList.map((node) => node.id).includes(node.id)
+  });
 
   if (sameNameList) {
-    for (const node of sameNameList) {
-      errorNodes.push({ id: node.id, name: node.name, type: 'duplicated name' });
-    }
-
-    showError(cloneList, 'contentError', errorNodes);
+    sameNameList.forEach(n => errorNodes.push({ id: n.id, name: n.name, type: 'duplicated name' }));
+    showError(preRenameCloneList, 'contentError', errorNodes);
 
     return undefined;
   }
 
+  const cloneList = preRenameCloneList;
   return cloneList;
 }
