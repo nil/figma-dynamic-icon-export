@@ -1,3 +1,4 @@
+import checkDuplicatedNames from './utils/checkDuplicatedNames';
 import detachInstance from './utils/detachInstance';
 import findFrames from './utils/findFrames';
 
@@ -8,7 +9,7 @@ const uiWidth: number = 350;
 
 async function main(): Promise<void> {
   let exportableAssets = [];
-  let errorNodes: ErrorEntry[];
+  let errorNodes: ErrorEntry[] = [];
 
   // Get all frames that will be processed
   const originalNodeList: FrameNode[] = findFrames();
@@ -25,32 +26,55 @@ async function main(): Promise<void> {
     return !originalNodeIdList.includes(node.id);
   });
 
-  for (const node of clonedNodeList) {
-    node.y = node.y + 56;
+  // Check if there are multiple nodes with the same name
+  const sameNameList = checkDuplicatedNames(originalNodeList);
+  const skipEverything = sameNameList ? true : false;
 
-    for (const child of node.children) {
-      if (child.type === 'INSTANCE') {
-        detachInstance(child);
+  if (sameNameList) {
+    let errorSent: string[] = [];
+
+    for (const node of sameNameList) {
+      if (!errorSent.includes(node.name)) {
+        errorNodes.push({ id: node.id, name: node.name, type: 'duplicated name' });
       }
+      errorSent.push(node.name);
     }
+  }
 
-    // Merge all paths
-    figma.union(node.children, node);
+  if (!skipEverything) {
+    for (const node of clonedNodeList) {
+      node.y = node.y + 56;
 
-    // Obtain SVG code
-    const unit8 = await node.exportAsync({ format: 'SVG' });
-    const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8))
-      .replace(/fill="(.*?)"\s?/gmi, '')
-      .replace(/clip-rule="(.*?)"\s?/gmi, '')
-      .replace(/<svg(.*)\n/gmi, '$&\t');
+      for (const child of node.children) {
+        if (child.type === 'INSTANCE') {
+          detachInstance(child);
+        }
+      }
 
-    // Check if there is any clipPath error
-    if (clipPathPattern.test(svgCode)) {
-      errorNodes.push({ id: node.id, name: node.name, type: 'clip-path' });
+      // Merge all paths
+      figma.union(node.children, node);
+
+      // Obtain SVG code
+      const unit8 = await node.exportAsync({ format: 'SVG' });
+      const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8))
+        .replace(/fill="(.*?)"\s?/gmi, '')
+        .replace(/clip-rule="(.*?)"\s?/gmi, '')
+        .replace(/<svg(.*)\n/gmi, '$&\t');
+
+      // Check if there is any clipPath error
+      if (clipPathPattern.test(svgCode)) {
+        console.warn('clip-path');
+
+        errorNodes.push({ id: node.id, name: node.name, type: 'clip-path' });
+      }
     }
   }
 
   if (errorNodes.length > 0) {
+    for (const node of clonedNodeList) {
+      node.remove();
+    }
+
     figma.showUI(__html__, { visible: true, width: uiWidth });
     figma.ui.postMessage({ name: 'contentError', content: errorNodes });
   }
