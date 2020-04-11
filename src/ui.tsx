@@ -2,8 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import ErrorMessage from './components/ErrorMessage';
 
-import './style/figma.css';
-import './style/plugin.css';
+import './style/main.css';
 
 const renderElement = document.getElementById('react-page');
 
