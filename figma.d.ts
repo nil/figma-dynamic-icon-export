@@ -1,13 +1,6 @@
 // Figma Plugin API version 1, update 14
 
 declare global {
-  // Custom types
-  interface ErrorEntry {
-    id: string,
-    name: string,
-    type: string
-  }
-
   // Global variable with Figma's plugin API.
   const figma: PluginAPI
   const __html__: string
