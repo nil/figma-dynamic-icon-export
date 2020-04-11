@@ -1,48 +1,17 @@
-import checkDuplicatedNames from './utils/checkDuplicatedNames';
+import cloneFrames from './utils/cloneFrames';
 import detachInstance from './utils/detachInstance';
-import findFrames from './utils/findFrames';
 
-const separatingMarks: string[] = [' ', '/', '_', '-'];
-const multipleSizeMarks: string[] = ['|', ','];
 const clipPathPattern: RegExp = new RegExp(/clip(-?)path/, 'gim');
-const uiWidth: number = 350;
+
+let exportableNodes: FrameNode[] = [];
+let exportableAssets = [];
+let errorNodes: ErrorEntry[] = [];
 
 async function main(): Promise<void> {
-  let exportableAssets = [];
-  let errorNodes: ErrorEntry[] = [];
+  const cloneList: FrameNode[] = cloneFrames();
 
-  // Get all frames that will be processed
-  const originalNodeList: FrameNode[] = findFrames();
-
-  // Clone selected nodes
-  for (const node of originalNodeList) {
-    node.clone();
-  }
-
-  // Array with the IDs of all nodes inside originalNodeList
-  const originalNodeIdList: string[] = originalNodeList.map((node) => node.id);
-
-  const clonedNodeList: FrameNode[] = findFrames().filter((node) => {
-    return !originalNodeIdList.includes(node.id);
-  });
-
-  // Check if there are multiple nodes with the same name
-  const sameNameList = checkDuplicatedNames(originalNodeList);
-  const skipEverything = sameNameList ? true : false;
-
-  if (sameNameList) {
-    let errorSent: string[] = [];
-
-    for (const node of sameNameList) {
-      if (!errorSent.includes(node.name)) {
-        errorNodes.push({ id: node.id, name: node.name, type: 'duplicated name' });
-      }
-      errorSent.push(node.name);
-    }
-  }
-
-  if (!skipEverything) {
-    for (const node of clonedNodeList) {
+  if (cloneList) {
+    for (const node of cloneList) {
       node.y = node.y + 56;
 
       for (const child of node.children) {
@@ -68,31 +37,31 @@ async function main(): Promise<void> {
         errorNodes.push({ id: node.id, name: node.name, type: 'clip-path' });
       }
     }
-  }
 
-  if (errorNodes.length > 0) {
-    for (const node of clonedNodeList) {
-      node.remove();
+    if (errorNodes.length > 0) {
+      for (const node of exportableNodes) {
+        node.remove();
+      }
+
+      figma.showUI(__html__, { visible: true });
+      figma.ui.postMessage({ name: 'contentError', content: errorNodes });
+    } else {
+      for (const node of exportableNodes) {
+        const unit8 = await node.exportAsync({ format: 'SVG' });
+        const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
+
+        const slashExp = new RegExp(' ?\/ ?', 'gi');
+        const name = node.name.replace(slashExp, '/');
+
+        exportableAssets.push({
+          name,
+          svgCode
+        })
+      }
+
+      figma.showUI(__html__, { visible: false });
+      figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
     }
-
-    figma.showUI(__html__, { visible: true, width: uiWidth });
-    figma.ui.postMessage({ name: 'contentError', content: errorNodes });
-  } else {
-    for (const node of clonedNodeList) {
-      const unit8 = await node.exportAsync({ format: 'SVG' });
-      const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
-
-      const slashExp = new RegExp(' ?\/ ?', 'gi');
-      const name = node.name.replace(slashExp, '/');
-
-      exportableAssets.push({
-        name,
-        svgCode
-      })
-    }
-
-    figma.showUI(__html__, { visible: false });
-    figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
   }
 }
 
@@ -104,12 +73,13 @@ figma.ui.onmessage = (message) => {
   }
 
   if (message.uiHeight) {
-    figma.ui.resize(uiWidth, message.uiHeight + 16);
+    figma.ui.resize(350, message.uiHeight + 16);
   }
 
   if (message.viewNode) {
     const selectedNode = figma.currentPage.findAll(n => n.name === message.viewNode);
 
     figma.currentPage.selection = selectedNode;
+    figma.viewport.scrollAndZoomIntoView(selectedNode);
   }
 }
