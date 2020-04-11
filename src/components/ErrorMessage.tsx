@@ -1,11 +1,5 @@
 import * as React from 'react';
 
-interface ErrorEntry {
-  id: string,
-  name: string,
-  type: string
-}
-
 type Props = {
   entries: ErrorEntry[]
 }
