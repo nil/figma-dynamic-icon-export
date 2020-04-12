@@ -26,6 +26,11 @@
 
   &-name {
     cursor: zoom-in;
+
+    &.no-cursor {
+      user-select: none;
+      cursor: default;
+    }
   }
 
   &-context {

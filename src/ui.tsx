@@ -1,3 +1,4 @@
+/* eslint-disable no-restricted-globals */
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/explicit-function-return-type */
 
@@ -6,6 +7,7 @@ import * as ReactDOM from 'react-dom';
 
 import JSZip from '../node_modules/jszip/dist/jszip.min';
 import ErrorMessage from './components/ErrorMessage';
+import NoContent from './components/NoContent';
 
 import './style/main.css';
 
@@ -18,7 +20,11 @@ onmessage = (event) => {
 
   if (message.name === 'contentError') {
     ReactDOM.render(<ErrorMessage entries={message.content} />, renderElement);
-    // eslint-disable-next-line no-restricted-globals
+    parent.postMessage({ pluginMessage: { uiHeight: renderElement.offsetHeight } }, '*');
+  }
+
+  if (message.name === 'noContent') {
+    ReactDOM.render(<NoContent message={message.content} />, renderElement);
     parent.postMessage({ pluginMessage: { uiHeight: renderElement.offsetHeight } }, '*');
   }
 

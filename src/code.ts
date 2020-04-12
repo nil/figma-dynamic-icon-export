@@ -1,5 +1,6 @@
 import cloneFrames from './utils/cloneFrames';
 import detachInstance from './utils/detachInstance';
+import showError from './utils/showError';
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 
@@ -8,7 +9,7 @@ const exportableAssets = [];
 const errorNodes: ErrorEntry[] = [];
 
 const marks = {
-  start: '$',
+  start: '$$$',
   end: ' ',
   size: ','
 };
@@ -22,7 +23,7 @@ const data: PluginData = {
 async function getSvgCode(): Promise<void> {
   const cloneList: FrameNode[] = cloneFrames(data);
 
-  if (cloneList) {
+  if (cloneList.length > 0) {
     cloneList.forEach(async (node) => {
       node.y = node.y + 56;
 
@@ -67,6 +68,8 @@ async function getSvgCode(): Promise<void> {
         node.remove();
       }
     });
+  } else {
+    showError('noContent', `0 frames start with ${data.start}`);
   }
 }
 
