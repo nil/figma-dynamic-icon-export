@@ -14,6 +14,7 @@ async function main(): Promise<void> {
     for (const node of cloneList) {
       node.y = node.y + 56;
 
+      // Detach instance
       for (const child of node.children) {
         if (child.type === 'INSTANCE') {
           detachInstance(child);
@@ -22,6 +23,15 @@ async function main(): Promise<void> {
 
       // Merge all paths
       figma.union(node.children, node);
+      figma.flatten(node.children, node);
+
+      // Resize frame
+      node.children.forEach((child) => {
+        if (child.type === 'VECTOR') {
+          child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
+          node.resize(20, 20);
+        }
+      })
 
       // Obtain SVG code
       const unit8 = await node.exportAsync({ format: 'SVG' });
