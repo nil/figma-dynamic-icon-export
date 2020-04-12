@@ -28,7 +28,7 @@ function findFrames(): FrameNode[] {
  *
  * @param list - The list to check
  */
-function checkDuplicatedNames(list: FrameNode[]): FrameNode[] | false {
+function checkDuplicatedNames(list: FrameNode[]): string[] | false {
   const nameList: string[] = list.map((node) => node.name);
 
   // Get new array with only duplicated values
@@ -38,7 +38,7 @@ function checkDuplicatedNames(list: FrameNode[]): FrameNode[] | false {
   }, []);
 
   if (checkedList.length > 0) {
-    return list.filter((node, index) => node.name === checkedList[index]);
+    return checkedList;
   }
 
   return false;
@@ -63,9 +63,9 @@ export default function (): FrameNode[] | undefined {
   const cloneList: FrameNode[] = findFrames().filter((frame) => !originalIdList.includes(frame.id));
 
   if (sameNameList) {
-    sameNameList.forEach((n) => errorNodes.push({
-      id: n.id,
-      name: n.name,
+    sameNameList.forEach((entry, index) => errorNodes.push({
+      id: `error-${index}`,
+      name: entry,
       type: 'duplicated name'
     }));
 
