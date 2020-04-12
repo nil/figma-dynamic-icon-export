@@ -5,7 +5,7 @@
  * @param instance - The instance to be detached
  */
 export default function (instance: InstanceNode): void {
-  for (const child of instance.children) {
+  instance.children.forEach((child) => {
     const clone = child.clone();
 
     // Put the instance on the correct position
@@ -13,7 +13,7 @@ export default function (instance: InstanceNode): void {
     clone.y = child.y + instance.y;
 
     instance.parent.appendChild(clone);
-  }
+  });
 
   instance.remove();
 }

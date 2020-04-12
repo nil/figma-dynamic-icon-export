@@ -1,25 +1,25 @@
 import cloneFrames from './utils/cloneFrames';
 import detachInstance from './utils/detachInstance';
 
-const clipPathPattern: RegExp = new RegExp(/clip(-?)path/, 'gim');
+const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 
-let exportableNodes: FrameNode[] = [];
-let exportableAssets = [];
-let errorNodes: ErrorEntry[] = [];
+const exportableNodes: FrameNode[] = [];
+const exportableAssets = [];
+const errorNodes: ErrorEntry[] = [];
 
 async function main(): Promise<void> {
   const cloneList: FrameNode[] = cloneFrames();
 
   if (cloneList) {
-    for (const node of cloneList) {
-      node.y = node.y + 56;
+    cloneList.forEach(async (node) => {
+      node.y += 56;
 
       // Detach instance
-      for (const child of node.children) {
+      node.children.forEach((child) => {
         if (child.type === 'INSTANCE') {
           detachInstance(child);
         }
-      }
+      });
 
       // Merge all paths
       figma.union(node.children, node);
@@ -31,7 +31,7 @@ async function main(): Promise<void> {
           child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
           node.resize(20, 20);
         }
-      })
+      });
 
       // Obtain SVG code
       const unit8 = await node.exportAsync({ format: 'SVG' });
@@ -46,28 +46,28 @@ async function main(): Promise<void> {
 
         errorNodes.push({ id: node.id, name: node.name, type: 'clip-path' });
       }
-    }
+    });
 
     if (errorNodes.length > 0) {
-      for (const node of exportableNodes) {
+      exportableNodes.forEach((node) => {
         node.remove();
-      }
+      });
 
       figma.showUI(__html__, { visible: true });
       figma.ui.postMessage({ name: 'contentError', content: errorNodes });
     } else {
-      for (const node of exportableNodes) {
+      exportableNodes.forEach(async (node) => {
         const unit8 = await node.exportAsync({ format: 'SVG' });
         const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
 
-        const slashExp = new RegExp(' ?\/ ?', 'gi');
+        const slashExp = new RegExp(' ?/ ?', 'gi');
         const name = node.name.replace(slashExp, '/');
 
         exportableAssets.push({
           name,
           svgCode
-        })
-      }
+        });
+      });
 
       figma.showUI(__html__, { visible: false });
       figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
@@ -77,7 +77,7 @@ async function main(): Promise<void> {
 
 main();
 
-figma.ui.onmessage = (message) => {
+figma.ui.onmessage = (message): void => {
   if (message === 'done') {
     figma.closePlugin();
   }
@@ -87,9 +87,9 @@ figma.ui.onmessage = (message) => {
   }
 
   if (message.viewNode) {
-    const selectedNode = figma.currentPage.findAll(n => n.name === message.viewNode);
+    const selectedNode = figma.currentPage.findAll((n) => n.name === message.viewNode);
 
     figma.currentPage.selection = selectedNode;
     figma.viewport.scrollAndZoomIntoView(selectedNode);
   }
-}
+};

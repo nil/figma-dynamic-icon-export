@@ -5,7 +5,7 @@
  * @param name      - name of the error message
  * @param content   - content of the error message
  */
-export default function(cloneList: FrameNode[], name: string, content: any): void {
+export default function (cloneList: FrameNode[], name: string, content): void {
   // Remove cloned frames
   cloneList.forEach((clone) => clone.remove());
 

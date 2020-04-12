@@ -1,6 +1,6 @@
 import showError from './showError';
 
-const indicationMark: string = '$$$';
+const indicationMark = '$$$';
 const separatingMarks: string[] = [' ', '/', '_', '-'];
 const multipleSizeMarks: string[] = ['|', ','];
 
@@ -9,17 +9,17 @@ const multipleSizeMarks: string[] = ['|', ','];
  * Get all frames that start with a specific string
  */
 function findFrames(): FrameNode[] {
-  let frameList: FrameNode[] = [];
+  const frameList: FrameNode[] = [];
 
-  for (const child of figma.currentPage.children) {
-    if (child.type !== 'FRAME') { continue }
-    if (!child.name.startsWith(indicationMark)) { continue }
+  figma.currentPage.children.forEach((child) => {
+    if (child.type !== 'FRAME') { return; }
+    if (!child.name.startsWith(indicationMark)) { return; }
 
     frameList.push(child);
-  }
+  });
 
   return frameList;
-};
+}
 
 
 /**
@@ -38,38 +38,41 @@ function checkDuplicatedNames(list: FrameNode[]): FrameNode[] | false {
   }, []);
 
   if (checkedList.length > 0) {
-    return list.filter((node, index) => node.name === checkedList[index])
-  } else {
-    return false;
+    return list.filter((node, index) => node.name === checkedList[index]);
   }
+
+  return false;
 }
 
 
 /**
  * Clone exportable frames and export results
  */
-export default function(): FrameNode[] | undefined {
+export default function (): FrameNode[] | undefined {
   const errorNodes: ErrorEntry[] = [];
   const originalList: FrameNode[] = findFrames();
 
   // Clone exportable nodes
-  originalList.forEach(node => {
-    node.clone()
+  originalList.forEach((node) => {
+    node.clone();
   });
 
   // Throw error if there is a duplicated layer name
   const sameNameList = checkDuplicatedNames(originalList);
-  const preRenameCloneList: FrameNode[] = findFrames().filter((node) => {
-    return !originalList.map((node) => node.id).includes(node.id)
-  });
+  const originalIdList = originalList.map((node) => node.id);
+  const cloneList: FrameNode[] = findFrames().filter((frame) => !originalIdList.includes(frame.id));
 
   if (sameNameList) {
-    sameNameList.forEach(n => errorNodes.push({ id: n.id, name: n.name, type: 'duplicated name' }));
-    showError(preRenameCloneList, 'contentError', errorNodes);
+    sameNameList.forEach((n) => errorNodes.push({
+      id: n.id,
+      name: n.name,
+      type: 'duplicated name'
+    }));
+
+    showError(cloneList, 'contentError', errorNodes);
 
     return undefined;
   }
 
-  const cloneList = preRenameCloneList;
   return cloneList;
 }
