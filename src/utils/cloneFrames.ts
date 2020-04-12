@@ -51,7 +51,7 @@ export default function (data: PluginData): FrameNode[] | undefined {
       type: 'duplicated name'
     }));
 
-    showError([], 'contentError', errorNodes);
+    showError('contentError', errorNodes);
 
     return undefined;
   }
@@ -61,7 +61,7 @@ export default function (data: PluginData): FrameNode[] | undefined {
     const nodeSizes = node.name.match(data.regexSizes)[1].split(data.size);
 
     nodeSizes.forEach((size) => {
-      node.clone().name = `${data.start}${size}${node.name.match(data.regexName)[0]}`;
+      node.clone().name = `${data.start}${size} / ${node.name.match(data.regexName)[0]}`;
     });
   });
 

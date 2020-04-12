@@ -19,7 +19,7 @@ const data: PluginData = {
   regexName: new RegExp(`\\${marks.end}(.*)`, 'i')
 };
 
-async function main(): Promise<void> {
+async function getSvgCode(): Promise<void> {
   const cloneList: FrameNode[] = cloneFrames(data);
 
   if (cloneList) {
@@ -38,56 +38,67 @@ async function main(): Promise<void> {
       figma.flatten(node.children, node);
 
       // Resize frame
+      const size = parseFloat(node.name.match(data.regexSizes)[1]);
+
       node.children.forEach((child) => {
         if (child.type === 'VECTOR') {
           child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
-          node.resize(20, 20);
+          node.resize(size, size);
         }
       });
 
+      // Rename frame
+      node.name = node.name.replace(data.start, '');
+
       // Obtain SVG code
       const unit8 = await node.exportAsync({ format: 'SVG' });
-      const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8))
+      const svg = String.fromCharCode.apply(null, new Uint16Array(unit8))
         .replace(/fill="(.*?)"\s?/gmi, '')
         .replace(/clip-rule="(.*?)"\s?/gmi, '')
-        .replace(/<svg(.*)\n/gmi, '$&\t');
+        .replace(/<svg(.*)\n/gmi, '$&\t')
+        .replace(/" \/>\n<path( fill-rule="evenodd")? d="/gmi, ' ');
 
       // Check if there is any clipPath error
-      if (clipPathPattern.test(svgCode)) {
-        console.warn('clip-path');
-
+      if (clipPathPattern.test(svg)) {
         errorNodes.push({ id: node.id, name: node.name, type: 'clip-path' });
+        node.remove();
+      } else {
+        exportableAssets.push({ node, svg });
+        node.remove();
       }
     });
-
-    if (errorNodes.length > 0) {
-      exportableNodes.forEach((node) => {
-        node.remove();
-      });
-
-      figma.showUI(__html__, { visible: true });
-      figma.ui.postMessage({ name: 'contentError', content: errorNodes });
-    } else {
-      exportableNodes.forEach(async (node) => {
-        const unit8 = await node.exportAsync({ format: 'SVG' });
-        const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
-
-        const slashExp = new RegExp(' ?/ ?', 'gi');
-        const name = node.name.replace(slashExp, '/');
-
-        exportableAssets.push({
-          name,
-          svgCode
-        });
-      });
-
-      figma.showUI(__html__, { visible: false });
-      figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
-    }
   }
 }
 
-main();
+getSvgCode().then(() => {
+  // if (errorNodes.length > 0) {
+  //   console.log('hey');
+
+  //   exportableNodes.forEach((node) => {
+  //     node.remove();
+  //   });
+
+  //   figma.showUI(__html__, { visible: true });
+  //   figma.ui.postMessage({ name: 'contentError', content: errorNodes });
+  // } else {
+  //   exportableNodes.forEach(async (node) => {
+  //     const unit8 = await node.exportAsync({ format: 'SVG' });
+  //     const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
+
+  //     const slashExp = new RegExp(' ?/ ?', 'gi');
+  //     const name = node.name.replace(slashExp, '/');
+
+  //     exportableAssets.push({
+  //       name,
+  //       svgCode
+  //     });
+  //   });
+
+    // figma.showUI(__html__, { visible: false });
+    // figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
+
+});
+
 
 figma.ui.onmessage = (message): void => {
   if (message === 'done') {
