@@ -1,78 +1,74 @@
 import showError from './showError';
 
-const indicationMark = '$$$';
-const separatingMarks: string[] = [' ', '/', '_', '-'];
-const multipleSizeMarks: string[] = ['|', ','];
-
-
 /**
  * Get all frames that start with a specific string
+ * or a portion of that list if it contains duplicated names
+ *
+ * @param checkDuplicates - Check if the final list includes frames with duplicated names
+ * @param data            - Plugin data
  */
-function findFrames(): FrameNode[] {
+function findFrames(checkDuplicates: boolean, data: PluginData): FindFrames {
   const frameList: FrameNode[] = [];
+  const nameList: string[] = [];
+  const duplicatedList: FrameNode[] = [];
 
-  figma.currentPage.children.forEach((child) => {
-    if (child.type !== 'FRAME') { return; }
-    if (!child.name.startsWith(indicationMark)) { return; }
+  figma.currentPage.children.forEach((node) => {
+    if (node.type !== 'FRAME') { return; }
+    if (!node.name.startsWith(data.start)) { return; }
 
-    frameList.push(child);
+    if (checkDuplicates) {
+      if (nameList.includes(node.name)) {
+        duplicatedList.push(node);
+      }
+      nameList.push(node.name);
+    }
+
+    frameList.push(node);
   });
 
-  return frameList;
-}
-
-
-/**
- * Check if an array of Frame nodes contains a duplicated name
- * and returns a filtered array or `false`
- *
- * @param list - The list to check
- */
-function checkDuplicatedNames(list: FrameNode[]): string[] | false {
-  const nameList: string[] = list.map((node) => node.name);
-
-  // Get new array with only duplicated values
-  // https://stackoverflow.com/a/35922651/9917803
-  const checkedList = nameList.reduce((acc, el, i, arr) => {
-    if (arr.indexOf(el) !== i && acc.indexOf(el) < 0) acc.push(el); return acc;
-  }, []);
-
-  if (checkedList.length > 0) {
-    return checkedList;
-  }
-
-  return false;
+  return {
+    duplicates: duplicatedList.length > 0,
+    frames: duplicatedList.length > 0 ? duplicatedList : frameList
+  };
 }
 
 
 /**
  * Clone exportable frames and export results
+ *
+ * @param data - Plugin data
  */
-export default function (): FrameNode[] | undefined {
+export default function (data: PluginData): FrameNode[] | undefined {
   const errorNodes: ErrorEntry[] = [];
-  const originalList: FrameNode[] = findFrames();
+  const findFramesResult: FindFrames = findFrames(true, data);
+  const originalList = findFramesResult.frames;
 
-  // Clone exportable nodes
-  originalList.forEach((node) => {
-    node.clone();
-  });
-
-  // Throw error if there is a duplicated layer name
-  const sameNameList = checkDuplicatedNames(originalList);
-  const originalIdList = originalList.map((node) => node.id);
-  const cloneList: FrameNode[] = findFrames().filter((frame) => !originalIdList.includes(frame.id));
-
-  if (sameNameList) {
-    sameNameList.forEach((entry, index) => errorNodes.push({
-      id: `error-${index}`,
-      name: entry,
+  // Throw error if there are multiple frames with the same name
+  if (findFramesResult.duplicates) {
+    originalList.forEach((frame) => errorNodes.push({
+      id: frame.id,
+      name: frame.name,
       type: 'duplicated name'
     }));
 
-    showError(cloneList, 'contentError', errorNodes);
+    showError([], 'contentError', errorNodes);
 
     return undefined;
   }
+
+  // Clone exportable nodes
+  originalList.forEach((node) => {
+    const nodeSizes = node.name.match(data.regexSizes)[1].split(data.size);
+
+    nodeSizes.forEach((size) => {
+      node.clone().name = `${data.start}${size}${node.name.match(data.regexName)[0]}`;
+    });
+  });
+
+  // Throw error if there is a duplicated layer name
+  const idList = originalList.map((node) => node.id);
+  const newFrameList = findFrames(false, data).frames;
+  const cloneList: FrameNode[] = newFrameList.filter((frame) => !idList.includes(frame.id));
 
   return cloneList;
 }

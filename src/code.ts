@@ -7,12 +7,24 @@ const exportableNodes: FrameNode[] = [];
 const exportableAssets = [];
 const errorNodes: ErrorEntry[] = [];
 
+const marks = {
+  start: '$',
+  end: ' ',
+  size: ','
+};
+
+const data: PluginData = {
+  ...marks,
+  regexSizes: new RegExp(`\\${marks.start}(.*?)\\${marks.end}`, 'i'),
+  regexName: new RegExp(`\\${marks.end}(.*)`, 'i')
+};
+
 async function main(): Promise<void> {
-  const cloneList: FrameNode[] = cloneFrames();
+  const cloneList: FrameNode[] = cloneFrames(data);
 
   if (cloneList) {
     cloneList.forEach(async (node) => {
-      node.y += 56;
+      node.y = node.y + 56;
 
       // Detach instance
       node.children.forEach((child) => {
