@@ -10,10 +10,12 @@ interface FindFrames {
   frames: FrameNode[];
 }
 
-interface PluginData {
-  start: string;
-  end: string;
-  size: string;
-  regexSizes: RegExp;
-  regexName: RegExp;
+interface NameData {
+  sizeExpression: string;
+  sizes: number[];
+  name: string;
+  id: string | undefined;
+  fullName: string[];
+  fullNameMark: string[];
+  fullNameId: string[] | undefined;
 }

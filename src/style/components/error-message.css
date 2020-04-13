@@ -26,9 +26,10 @@
 
   &-name {
     cursor: zoom-in;
+    user-select: none;
+    outline: 0;
 
     &.no-cursor {
-      user-select: none;
       cursor: default;
     }
   }

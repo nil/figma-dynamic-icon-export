@@ -1,30 +1,20 @@
 import cloneFrames from './utils/cloneFrames';
 import detachInstance from './utils/detachInstance';
+import nameData, { startMark } from './utils/nameData';
 import showError from './utils/showError';
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 
-const exportableNodes: FrameNode[] = [];
-const exportableAssets = [];
+const exportableAssets: { node: FrameNode; svg: string }[] = [];
 const errorNodes: ErrorEntry[] = [];
-
-const marks = {
-  start: '$$$',
-  end: ' ',
-  size: ','
-};
-
-const data: PluginData = {
-  ...marks,
-  regexSizes: new RegExp(`\\${marks.start}(.*?)\\${marks.end}`, 'i'),
-  regexName: new RegExp(`\\${marks.end}(.*)`, 'i')
-};
+const errorNodesId: string[] = [];
 
 async function getSvgCode(): Promise<void> {
-  const cloneList: FrameNode[] = cloneFrames(data);
+  const cloneList: FrameNode[] = cloneFrames();
 
   if (cloneList.length > 0) {
     cloneList.forEach(async (node) => {
+      const nodeData = nameData(node.name);
       node.y = node.y + 56;
 
       // Detach instance
@@ -39,17 +29,12 @@ async function getSvgCode(): Promise<void> {
       figma.flatten(node.children, node);
 
       // Resize frame
-      const size = parseFloat(node.name.match(data.regexSizes)[1]);
-
       node.children.forEach((child) => {
         if (child.type === 'VECTOR') {
           child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
-          node.resize(size, size);
+          node.resize(nodeData.sizes[0], nodeData.sizes[0]);
         }
       });
-
-      // Rename frame
-      node.name = node.name.replace(data.start, '');
 
       // Obtain SVG code
       const unit8 = await node.exportAsync({ format: 'SVG' });
@@ -61,7 +46,13 @@ async function getSvgCode(): Promise<void> {
 
       // Check if there is any clipPath error
       if (clipPathPattern.test(svg)) {
-        errorNodes.push({ id: node.id, name: node.name, type: 'clip-path' });
+        const { id } = nameData(node.name);
+
+        if (!errorNodesId.includes(id)) {
+          errorNodes.push({ id: node.id, name: node.name, type: 'clip-path' });
+        }
+
+        errorNodesId.push(id);
         node.remove();
       } else {
         exportableAssets.push({ node, svg });
@@ -69,17 +60,14 @@ async function getSvgCode(): Promise<void> {
       }
     });
   } else {
-    showError('noContent', `0 frames start with ${data.start}`);
+    showError('noContent', `0 frames start with ${startMark}`);
   }
 }
 
 getSvgCode().then(() => {
-  // if (errorNodes.length > 0) {
-  //   console.log('hey');
-
-  //   exportableNodes.forEach((node) => {
-  //     node.remove();
-  //   });
+  if (errorNodes.length > 0) {
+    showError('contentError', errorNodes);
+  }
 
   //   figma.showUI(__html__, { visible: true });
   //   figma.ui.postMessage({ name: 'contentError', content: errorNodes });
@@ -113,7 +101,7 @@ figma.ui.onmessage = (message): void => {
   }
 
   if (message.viewNode) {
-    const selectedNode = figma.currentPage.findAll((n) => n.name === message.viewNode);
+    const selectedNode = figma.currentPage.findAll((n) => n.id === message.viewNode);
 
     figma.currentPage.selection = selectedNode;
     figma.viewport.scrollAndZoomIntoView(selectedNode);

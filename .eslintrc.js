@@ -10,6 +10,9 @@ module.exports = {
     'airbnb-typescript'
   ],
   rules: {
+    'jsx-a11y/click-events-have-key-events': 0,
+
+    'no-restricted-globals': 0,
     'comma-dangle': ['error', 'never'],
     'no-param-reassign': 0,
   }

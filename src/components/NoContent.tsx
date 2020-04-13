@@ -5,11 +5,13 @@ type Props = {
 };
 
 class ErrorMessage extends React.Component<Props, {}> {
-  viewNode = (name): void => {
+  viewNode = (name: string): void => {
     parent.postMessage({ pluginMessage: { viewNode: name } }, '*');
   };
 
-  render() {
+  render(): JSX.Element {
+    const { message } = this.props;
+
     return (
       <div className="error-message">
         <div className="error-entry">
@@ -18,7 +20,7 @@ class ErrorMessage extends React.Component<Props, {}> {
           </svg>
           <div className="error-info">
             <div className="error-name type type--pos-large-bold no-cursor">No content found</div>
-            <div className="error-context type type--pos-medium-normal">{this.props.message}</div>
+            <div className="error-context type type--pos-medium-normal">{message}</div>
           </div>
         </div>
       </div>

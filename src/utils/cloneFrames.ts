@@ -1,20 +1,21 @@
 import showError from './showError';
+import nameData, { startMark, idMark } from './nameData';
+
 
 /**
  * Get all frames that start with a specific string
  * or a portion of that list if it contains duplicated names
  *
  * @param checkDuplicates - Check if the final list includes frames with duplicated names
- * @param data            - Plugin data
  */
-function findFrames(checkDuplicates: boolean, data: PluginData): FindFrames {
+function findFrames(checkDuplicates: boolean): FindFrames {
   const frameList: FrameNode[] = [];
   const nameList: string[] = [];
   const duplicatedList: FrameNode[] = [];
 
   figma.currentPage.children.forEach((node) => {
     if (node.type !== 'FRAME') { return; }
-    if (!node.name.startsWith(data.start)) { return; }
+    if (!node.name.startsWith(startMark)) { return; }
 
     if (checkDuplicates) {
       if (nameList.includes(node.name)) {
@@ -35,12 +36,10 @@ function findFrames(checkDuplicates: boolean, data: PluginData): FindFrames {
 
 /**
  * Clone exportable frames and export results
- *
- * @param data - Plugin data
  */
-export default function (data: PluginData): FrameNode[] | undefined {
+export default function (): FrameNode[] | undefined {
   const errorNodes: ErrorEntry[] = [];
-  const findFramesResult: FindFrames = findFrames(true, data);
+  const findFramesResult: FindFrames = findFrames(true);
   const originalList = findFramesResult.frames;
 
   // Throw error if there are multiple frames with the same name
@@ -58,16 +57,16 @@ export default function (data: PluginData): FrameNode[] | undefined {
 
   // Clone exportable nodes
   originalList.forEach((node) => {
-    const nodeSizes = node.name.match(data.regexSizes)[1].split(data.size);
+    const names = nameData(node.name).fullNameMark.map((name) => `${name}${idMark}${node.id}`);
 
-    nodeSizes.forEach((size) => {
-      node.clone().name = `${data.start}${size} / ${node.name.match(data.regexName)[0]}`;
+    names.forEach((name) => {
+      node.clone().name = name;
     });
   });
 
   // Throw error if there is a duplicated layer name
   const idList = originalList.map((node) => node.id);
-  const newFrameList = findFrames(false, data).frames;
+  const newFrameList = findFrames(false).frames;
   const cloneList: FrameNode[] = newFrameList.filter((frame) => !idList.includes(frame.id));
 
   return cloneList;
