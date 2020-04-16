@@ -1,6 +1,6 @@
-const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const path = require('path');
+import HtmlWebpackInlineSourcePlugin from 'html-webpack-inline-source-plugin';
+import HtmlWebpackPlugin from 'html-webpack-plugin';
+import path from 'path';
 
 module.exports = (env, argv) => ({
   mode: argv.mode === 'production' ? 'production' : 'development',
@@ -10,7 +10,7 @@ module.exports = (env, argv) => ({
 
   entry: {
     ui: './src/ui.tsx',
-    code: './src/code.ts',
+    code: './src/code.ts'
   },
 
   module: {
@@ -32,8 +32,8 @@ module.exports = (env, argv) => ({
         loader: [
           { loader: 'url-loader' }
         ]
-      },
-    ],
+      }
+    ]
   },
 
   resolve: {
@@ -42,7 +42,7 @@ module.exports = (env, argv) => ({
 
   output: {
     filename: '[name].js',
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'dist')
   },
 
   plugins: [
@@ -50,8 +50,8 @@ module.exports = (env, argv) => ({
       template: './src/ui.html',
       filename: 'ui.html',
       inlineSource: '.(js)$',
-      chunks: ['ui'],
+      chunks: ['ui']
     }),
-    new HtmlWebpackInlineSourcePlugin(),
-  ],
-})
+    new HtmlWebpackInlineSourcePlugin()
+  ]
+});
