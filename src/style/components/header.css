@@ -1,0 +1,42 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  background-color: #FFFFFF;
+
+  &-layout {
+    display: flex;
+    justify-content: space-between;
+
+    height: 40px;
+    border-bottom: 1px solid #E5E5E5;
+  }
+
+  &-button {
+    &-entry {
+      display: inline-flex;
+      justify-content: center;
+
+      height: 100%;
+      padding: 0 16px;
+
+      font: inherit;
+      cursor: pointer;
+
+      &:disabled {
+        cursor: not-allowed;
+
+        & .header-button-icon {
+          opacity: 0.4;
+        }
+      }
+    }
+
+    &-icon {
+      width: 16px;
+      margin-right: 4px;
+    }
+  }
+}

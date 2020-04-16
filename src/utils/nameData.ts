@@ -1,4 +1,4 @@
-export const startMark = '$';
+export const startMark = '$$$';
 export const endMark = ' ';
 export const sizeMark = ',';
 export const idMark = ';';

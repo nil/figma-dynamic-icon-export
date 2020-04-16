@@ -1,0 +1,7 @@
+@import "./base/base.css";
+@import "./base/figma.css";
+
+@import "./components/error-message.css";
+@import "./components/header.css";
+@import "./components/loading.css";
+@import "./components/main.css";

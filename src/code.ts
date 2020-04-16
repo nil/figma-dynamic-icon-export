@@ -9,6 +9,9 @@ const exportableAssets: { node: FrameNode; svg: string }[] = [];
 const errorNodes: ErrorEntry[] = [];
 const errorNodesId: string[] = [];
 
+// Render UI
+figma.showUI(__html__, { width: 350, height: 208 });
+
 async function getSvgCode(): Promise<void> {
   const cloneList: FrameNode[] = cloneFrames();
 
@@ -64,13 +67,10 @@ async function getSvgCode(): Promise<void> {
   }
 }
 
-getSvgCode().then(() => {
+function createExport(): void {
   if (errorNodes.length > 0) {
     showError('contentError', errorNodes);
   }
-
-  //   figma.showUI(__html__, { visible: true });
-  //   figma.ui.postMessage({ name: 'contentError', content: errorNodes });
   // } else {
   //   exportableNodes.forEach(async (node) => {
   //     const unit8 = await node.exportAsync({ format: 'SVG' });
@@ -87,6 +87,9 @@ getSvgCode().then(() => {
 
   // figma.showUI(__html__, { visible: false });
   // figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
+}
+getSvgCode().then(() => {
+  createExport();
 });
 
 
@@ -97,6 +100,10 @@ figma.ui.onmessage = (message): void => {
 
   if (message.uiHeight) {
     figma.ui.resize(350, message.uiHeight + 16);
+  }
+
+  if (message.runAgain) {
+    figma.ui.postMessage({ name: 'runAgain', content: true });
   }
 
   if (message.viewNode) {
