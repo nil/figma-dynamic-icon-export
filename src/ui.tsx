@@ -7,7 +7,6 @@ import * as ReactDOM from 'react-dom';
 
 import JSZip from '../node_modules/jszip/dist/jszip.min';
 import ErrorMessage from './components/ErrorMessage';
-import NoContent from './components/NoContent';
 
 import './style/main.css';
 
@@ -19,12 +18,15 @@ onmessage = (event) => {
   if (!message) { return; }
 
   if (message.name === 'contentError') {
-    ReactDOM.render(<ErrorMessage entries={message.content} />, renderElement);
-    parent.postMessage({ pluginMessage: { uiHeight: renderElement.offsetHeight } }, '*');
-  }
+    let errorArray = [];
 
-  if (message.name === 'noContent') {
-    ReactDOM.render(<NoContent message={message.content} />, renderElement);
+    if (Array.isArray(message.content)) {
+      errorArray = message.content;
+    } else {
+      errorArray = [{ name: message.content.name, message: message.content.message, id: 'single' }];
+    }
+
+    ReactDOM.render(<ErrorMessage entries={errorArray} />, renderElement);
     parent.postMessage({ pluginMessage: { uiHeight: renderElement.offsetHeight } }, '*');
   }
 

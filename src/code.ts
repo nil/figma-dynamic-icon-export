@@ -15,7 +15,7 @@ async function getSvgCode(): Promise<void> {
   if (cloneList.length > 0) {
     cloneList.forEach(async (node) => {
       const nodeData = nameData(node.name);
-      node.y = node.y + 56;
+      node.y += 56;
 
       // Detach instance
       node.children.forEach((child) => {
@@ -60,7 +60,7 @@ async function getSvgCode(): Promise<void> {
       }
     });
   } else {
-    showError('noContent', `0 frames start with ${startMark}`);
+    showError('contentError', { name: 'No content found', message: `0 frames start with ${startMark}` });
   }
 }
 
@@ -85,9 +85,8 @@ getSvgCode().then(() => {
   //     });
   //   });
 
-    // figma.showUI(__html__, { visible: false });
-    // figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
-
+  // figma.showUI(__html__, { visible: false });
+  // figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
 });
 
 

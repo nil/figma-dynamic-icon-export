@@ -25,12 +25,12 @@
   }
 
   &-name {
-    cursor: zoom-in;
+    cursor: default;
     user-select: none;
     outline: 0;
 
-    &.no-cursor {
-      cursor: default;
+    &[role="link"] {
+      cursor: zoom-in;
     }
   }
 
