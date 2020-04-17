@@ -110,9 +110,19 @@ figma.ui.onmessage = (message): void => {
     createExport();
   }
 
-  // Select a list of given nodes
+  // Select a list of given nodes, search by id
   if (message.viewNode) {
-    const selectedNode = figma.currentPage.findAll((n) => n.id === message.viewNode);
+    const nodeId = nameData(message.viewNode).id;
+    const selectedNode = figma.currentPage.findAll((n) => n.id === nodeId);
+
+    figma.currentPage.selection = selectedNode;
+    figma.viewport.scrollAndZoomIntoView(selectedNode);
+  }
+
+  // Select a list of given nodes, search by name
+  if (message.viewDuplicatedNode) {
+    const nodeName = nameData(message.viewDuplicatedNode).fullNameMark[0].replace(' /', '');
+    const selectedNode = figma.currentPage.findAll((n) => n.name === nodeName);
 
     figma.currentPage.selection = selectedNode;
     figma.viewport.scrollAndZoomIntoView(selectedNode);
