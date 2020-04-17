@@ -8,6 +8,7 @@ import { renderHeader, renderMain } from './utils/renderUi';
 
 import ErrorMessage from './components/ErrorMessage';
 import Loading from './components/Loading';
+import Settings from './components/Settings';
 import Success from './components/Success';
 
 import './style/index.css';
@@ -57,6 +58,7 @@ onmessage = (event) => {
       renderMain(<Loading />);
     } else if (message.content === 'Settings') {
       renderHeader(false, true);
+      renderMain(<Settings />);
     }
   }
 
