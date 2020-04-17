@@ -80,8 +80,10 @@ onmessage = (event) => {
         link.download = 'icons.zip';
         link.click();
       }).then(() => {
-        renderHeader(false, false);
-        renderMain(<Success length={message.content.length} />);
+        setTimeout(() => {
+          renderHeader(false, false);
+          renderMain(<Success length={message.content.length} />);
+        }, 2000);
       });
     });
   }
