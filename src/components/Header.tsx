@@ -27,12 +27,10 @@ class Header extends React.Component<Props, {}> {
     const { disabled, settings } = this.props;
 
     return (
-      <>
-        <div className={`header-layout type type--pos-small-bold ${settings ? 'header-layout--open' : ''}`}>
-          {this.button('Run again', IconReload, disabled, false)}
-          {this.button('Settings', IconSettings, false, settings)}
-        </div>
-      </>
+      <div className={`header-layout type type--pos-small-bold ${settings ? 'header-layout--open' : ''}`}>
+        {this.button('Run again', IconReload, disabled, false)}
+        {this.button('Settings', IconSettings, false, settings)}
+      </div>
     );
   }
 }
