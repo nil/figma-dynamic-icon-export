@@ -5,7 +5,7 @@ import showError from './utils/showError';
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 
-let exportableAssets: { node: FrameNode; svg: string }[] = [];
+let exportableAssets: { name: string; svg: string }[] = [];
 let errorNodes: ErrorEntry[] = [];
 let errorNodesId: string[] = [];
 
@@ -64,7 +64,9 @@ async function getSvgCode(): Promise<void> {
         errorNodesId.push(id);
         node.remove();
       } else {
-        exportableAssets.push({ node, svg });
+        const { name } = node;
+
+        exportableAssets.push({ name, svg });
         node.remove();
       }
     });
@@ -76,24 +78,11 @@ async function getSvgCode(): Promise<void> {
 function createExport(): void {
   if (errorNodes.length > 0) {
     showError('contentError', errorNodes);
+  } else if (exportableAssets.length > 0) {
+    figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
   }
-  // } else {
-  //   exportableNodes.forEach(async (node) => {
-  //     const unit8 = await node.exportAsync({ format: 'SVG' });
-  //     const svgCode = String.fromCharCode.apply(null, new Uint16Array(unit8));
-
-  //     const slashExp = new RegExp(' ?/ ?', 'gi');
-  //     const name = node.name.replace(slashExp, '/');
-
-  //     exportableAssets.push({
-  //       name,
-  //       svgCode
-  //     });
-  //   });
-
-  // figma.showUI(__html__, { visible: false });
-  // figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
 }
+
 getSvgCode().then(() => {
   createExport();
 });
