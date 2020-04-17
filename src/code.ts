@@ -102,8 +102,8 @@ figma.ui.onmessage = (message): void => {
     figma.ui.resize(350, message.uiHeight + 16);
   }
 
-  if (message.runAgain) {
-    figma.ui.postMessage({ name: 'runAgain', content: true });
+  if (message.headerAction) {
+    figma.ui.postMessage({ name: 'headerAction', content: message.headerAction });
   }
 
   if (message.viewNode) {

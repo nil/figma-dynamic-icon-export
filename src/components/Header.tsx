@@ -4,27 +4,19 @@ import IconSettings from '../assets/settings.svg';
 
 type Props = {
   disabled: boolean;
+  settings: boolean;
 };
 
 class Header extends React.Component<Props, {}> {
-  viewNode = (id: string | boolean): void => {
-    parent.postMessage({ pluginMessage: { viewNode: id } }, '*');
+  sendMessage = (content: string): void => {
+    parent.postMessage({ pluginMessage: { headerAction: content } }, '*');
   };
 
-  runAgainAction = (): void => {
-    parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
-  };
-
-  settingsAction = (): void => {
-    console.log('SETTINGS');
-  };
-
-  button = (text: string, icon, callback, disabled?: boolean): JSX.Element => (
+  button = (text: string, icon, disabled: boolean, settings: boolean): JSX.Element => (
     <button
       type="button"
-      className="header-button-entry"
-      onClick={(): void => callback()}
-      disabled={disabled}
+      className={`header-button-entry ${disabled ? 'header-button-entry--disabled' : ''} ${settings ? 'header-button-entry--open' : ''}`}
+      onClick={(): void => this.sendMessage(text)}
     >
       <img src={icon} className="header-button-icon" alt="" aria-hidden="true" />
       <span className="header-button-text">{text}</span>
@@ -32,13 +24,13 @@ class Header extends React.Component<Props, {}> {
   );
 
   render(): JSX.Element {
-    const { disabled } = this.props;
+    const { disabled, settings } = this.props;
 
     return (
       <>
-        <div className="header-layout type type--pos-small-bold">
-          {this.button('Run again', IconReload, this.runAgainAction, disabled)}
-          {this.button('Settings', IconSettings, this.settingsAction)}
+        <div className={`header-layout type type--pos-small-bold ${settings ? 'header-layout--open' : ''}`}>
+          {this.button('Run again', IconReload, disabled, false)}
+          {this.button('Settings', IconSettings, false, settings)}
         </div>
       </>
     );

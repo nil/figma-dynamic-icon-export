@@ -3,8 +3,8 @@ import * as React from 'react';
 
 import Header from '../components/Header';
 
-export const renderHeader = (disabled: boolean): void => {
-  ReactDOM.render(<Header disabled={disabled} />, document.getElementById('header'));
+export const renderHeader = (disabled: boolean, settings: boolean): void => {
+  ReactDOM.render(<Header disabled={disabled} settings={settings} />, document.getElementById('header'));
 };
 
 export const renderMain = (content: JSX.Element): void => {

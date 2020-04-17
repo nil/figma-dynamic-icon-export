@@ -17,7 +17,7 @@ import './style/index.css';
 
 
 // Render initial UI
-renderHeader(true);
+renderHeader(true, false);
 renderMain(<Loading />);
 
 
@@ -35,9 +35,13 @@ onmessage = (event) => {
 
   if (!message) { return; }
 
-  if (message.name === 'runAgain') {
-    renderHeader(true);
-    renderMain(<Loading />);
+  if (message.name === 'headerAction') {
+    if (message.content === 'Run again') {
+      renderHeader(true, false);
+      renderMain(<Loading />);
+    } else if (message.content === 'Settings') {
+      renderHeader(false, true);
+    }
   }
 
   if (message.name === 'contentError') {
@@ -48,7 +52,7 @@ onmessage = (event) => {
     } else {
       errorArray = [{ name: message.content.name, message: message.content.message, id: 'single' }];
     }
-    renderHeader(false);
+    renderHeader(false, false);
     renderMain(<ErrorMessage entries={errorArray} />);
   }
 
