@@ -5,9 +5,9 @@ import showError from './utils/showError';
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 
-const exportableAssets: { node: FrameNode; svg: string }[] = [];
-const errorNodes: ErrorEntry[] = [];
-const errorNodesId: string[] = [];
+let exportableAssets: { node: FrameNode; svg: string }[] = [];
+let errorNodes: ErrorEntry[] = [];
+let errorNodesId: string[] = [];
 
 // Render UI
 figma.showUI(__html__, { width: 360, height: 207 });
@@ -15,6 +15,12 @@ figma.showUI(__html__, { width: 360, height: 207 });
 async function getSvgCode(): Promise<void> {
   const cloneList: FrameNode[] = cloneFrames();
 
+  // Empty arrays
+  exportableAssets = [];
+  errorNodes = [];
+  errorNodesId = [];
+
+  // Get SVG code from the frames in cloneList
   if (cloneList.length > 0) {
     cloneList.forEach(async (node) => {
       const nodeData = nameData(node.name);
@@ -94,18 +100,23 @@ getSvgCode().then(() => {
 
 
 figma.ui.onmessage = (message): void => {
+  // Close plugin
   if (message === 'done') {
     figma.closePlugin();
   }
 
-  if (message.uiHeight) {
-    figma.ui.resize(350, message.uiHeight + 16);
-  }
-
+  // Send message to re-render UI from the header
   if (message.headerAction) {
     figma.ui.postMessage({ name: 'headerAction', content: message.headerAction });
+
+    if (message.headerAction === 'Run again') {
+      getSvgCode().then(() => {
+        createExport();
+      });
+    }
   }
 
+  // Select a list of given nodes
   if (message.viewNode) {
     const selectedNode = figma.currentPage.findAll((n) => n.id === message.viewNode);
 
