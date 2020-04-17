@@ -2,16 +2,17 @@
   &-entry {
     display: flex;
 
-    padding: 8px;
+    padding: 6px 8px 8px;
     margin-bottom: 8px;
 
-    background-color: #FEEDE9;
+    background-color: #FEF6F4;
+    border: 1px solid #F24822;
     border-radius: 5px;
   }
 
   &-icon {
     width: 32px;
-    margin-right: 8px;
+    margin: 1.5px 12px 0 3px;
 
     fill: #F24822;
   }

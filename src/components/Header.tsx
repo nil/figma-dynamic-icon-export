@@ -26,7 +26,7 @@ class Header extends React.Component<Props, {}> {
       onClick={(): void => callback()}
       disabled={disabled}
     >
-      <img src={icon} className="header-button-icon" />
+      <img src={icon} className="header-button-icon" alt="" aria-hidden="true" />
       <span className="header-button-text">{text}</span>
     </button>
   );
@@ -36,7 +36,7 @@ class Header extends React.Component<Props, {}> {
 
     return (
       <>
-        <div className="header-layout type type--pos-medium-bold">
+        <div className="header-layout type type--pos-small-bold">
           {this.button('Run again', IconReload, this.runAgainAction, disabled)}
           {this.button('Settings', IconSettings, this.settingsAction)}
         </div>

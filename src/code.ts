@@ -10,7 +10,7 @@ const errorNodes: ErrorEntry[] = [];
 const errorNodesId: string[] = [];
 
 // Render UI
-figma.showUI(__html__, { width: 350, height: 208 });
+figma.showUI(__html__, { width: 360, height: 207 });
 
 async function getSvgCode(): Promise<void> {
   const cloneList: FrameNode[] = cloneFrames();
