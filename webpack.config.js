@@ -1,6 +1,6 @@
-import HtmlWebpackInlineSourcePlugin from 'html-webpack-inline-source-plugin';
-import HtmlWebpackPlugin from 'html-webpack-plugin';
-import path from 'path';
+const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
 
 module.exports = (env, argv) => ({
   mode: argv.mode === 'production' ? 'production' : 'development',
