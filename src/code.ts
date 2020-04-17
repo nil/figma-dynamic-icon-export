@@ -55,10 +55,10 @@ async function getSvgCode(): Promise<void> {
 
       // Check if there is any clipPath error
       if (clipPathPattern.test(svg)) {
-        const { id } = nameData(node.name);
+        const { id, fullName } = nameData(node.name);
 
         if (!errorNodesId.includes(id)) {
-          errorNodes.push({ id: node.id, name: node.name, type: 'clip-path' });
+          errorNodes.push({ id: node.id, name: fullName[0], type: 'clip-path' });
         }
 
         errorNodesId.push(id);
