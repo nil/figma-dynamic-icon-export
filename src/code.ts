@@ -64,7 +64,7 @@ async function getSvgCode(): Promise<void> {
         errorNodesId.push(id);
         node.remove();
       } else {
-        const { name } = node;
+        const name = nameData(node.name).fullName[0];
 
         exportableAssets.push({ name, svg });
         node.remove();

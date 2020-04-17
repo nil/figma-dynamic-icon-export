@@ -68,8 +68,8 @@ onmessage = (event) => {
     return new Promise(() => {
       const zip = new JSZip();
 
-      message.content.forEach((asset) => {
-        zip.file(`${asset.name}.svg`, asset.svg);
+      message.content.forEach(({ name, svg }) => {
+        zip.file(`${name}.svg`, svg);
       });
 
       zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
