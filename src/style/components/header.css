@@ -13,7 +13,7 @@
     display: flex;
     justify-content: space-between;
 
-    height: 39px;
+    height: 40px;
     border-bottom: var(--header-border);
 
     &--open {
@@ -27,7 +27,7 @@
       justify-content: center;
 
       height: 100%;
-      padding: 0 16px;
+      padding: 0 16px 1px;
 
       background: transparent;
       font: inherit;
