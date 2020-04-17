@@ -90,7 +90,7 @@ getSvgCode().then(() => {
 
 figma.ui.onmessage = (message): void => {
   // Close plugin
-  if (message === 'done') {
+  if (message.closePlugin) {
     figma.closePlugin();
   }
 
@@ -103,6 +103,11 @@ figma.ui.onmessage = (message): void => {
         createExport();
       });
     }
+  }
+
+  // Download icons again
+  if (message.downloadAgain) {
+    createExport();
   }
 
   // Select a list of given nodes

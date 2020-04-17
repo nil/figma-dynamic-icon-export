@@ -8,6 +8,7 @@ import { renderHeader, renderMain } from './utils/renderUi';
 
 import ErrorMessage from './components/ErrorMessage';
 import Loading from './components/Loading';
+import Success from './components/Success';
 
 import './style/index.css';
 
@@ -78,6 +79,9 @@ onmessage = (event) => {
         link.href = blobURL;
         link.download = 'icons.zip';
         link.click();
+      }).then(() => {
+        renderHeader(false, false);
+        renderMain(<Success length={message.content.length} />);
       });
     });
   }
