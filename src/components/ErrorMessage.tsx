@@ -10,30 +10,22 @@ type Props = {
   };
 };
 
-class ErrorMessage extends React.Component<Props, {}> {
-  viewNode = (id: string): void => {
-    parent.postMessage({ pluginMessage: { viewNode: id } }, '*');
-  };
+const ErrorMessage = ({ entries }: Props): JSX.Element => {
+  const errorEntries = entries.map((entry) => (
+    <ErrorEntry
+      key={entry.id}
+      type={entry.type}
+      message={entry.message}
+      name={entry.name}
+      id={entry.id}
+    />
+  ));
 
-  render(): JSX.Element {
-    const { entries } = this.props;
-
-    const errorEntries = entries.map((entry) => (
-      <ErrorEntry
-        key={entry.id}
-        type={entry.type}
-        message={entry.message}
-        name={entry.name}
-        id={entry.id}
-      />
-    ));
-
-    return (
-      <div className="error-message">
-        {errorEntries}
-      </div>
-    );
-  }
-}
+  return (
+    <div className="error-message">
+      {errorEntries}
+    </div>
+  );
+};
 
 export default ErrorMessage;
