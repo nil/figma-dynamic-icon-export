@@ -1,14 +1,12 @@
 import showError from './showError';
-import nameData, { startMark, idMark } from './nameData';
+import nameData, { startMark } from './nameData';
 
 
 /**
  * Get all frames that start with a specific string
  * or a portion of that list if it contains duplicated names
- *
- * @param checkDuplicates - Check if the final list includes frames with duplicated names
  */
-function findFrames(checkDuplicates: boolean): FindFrames {
+function findFrames(): FindFrames {
   const frameList: FrameNode[] = [];
   const nameList: string[] = [];
   const duplicatedList: FrameNode[] = [];
@@ -17,13 +15,11 @@ function findFrames(checkDuplicates: boolean): FindFrames {
     if (node.type !== 'FRAME') { return; }
     if (!node.name.startsWith(startMark)) { return; }
 
-    if (checkDuplicates) {
-      if (nameList.includes(node.name)) {
-        duplicatedList.push(node);
-      }
-      nameList.push(node.name);
+    if (nameList.includes(node.name)) {
+      duplicatedList.push(node);
     }
 
+    nameList.push(node.name);
     frameList.push(node);
   });
 
@@ -39,8 +35,9 @@ function findFrames(checkDuplicates: boolean): FindFrames {
  */
 export default function (): FrameNode[] | undefined {
   const errorNodes: ErrorEntry[] = [];
-  const findFramesResult: FindFrames = findFrames(true);
+  const findFramesResult: FindFrames = findFrames();
   const originalList = findFramesResult.frames;
+  const cloneList: FrameNode[] = [];
 
   // Throw error if there are multiple frames with the same name
   if (findFramesResult.duplicates) {
@@ -57,17 +54,16 @@ export default function (): FrameNode[] | undefined {
 
   // Clone exportable nodes
   originalList.forEach((node) => {
-    const names = nameData(node.name).fullNameMark.map((name) => `${name}${idMark}${node.id}`);
+    const names = nameData(node.name).fullName;
 
     names.forEach((name) => {
-      node.clone().name = name;
+      const clone = node.clone();
+
+      clone.setPluginData('originalId', node.id);
+      clone.name = name;
+      cloneList.push(clone);
     });
   });
-
-  // Throw error if there is a duplicated layer name
-  const idList = originalList.map((node) => node.id);
-  const newFrameList = findFrames(false).frames;
-  const cloneList: FrameNode[] = newFrameList.filter((frame) => !idList.includes(frame.id));
 
   return cloneList;
 }
