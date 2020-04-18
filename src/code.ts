@@ -55,10 +55,11 @@ async function getSvgCode(): Promise<void> {
 
       // Check if there is any clipPath error
       if (clipPathPattern.test(svg)) {
-        const { id, fullName } = nameData(node.name);
+        const { fullName } = nameData(node.name);
+        const id = node.getPluginData('originalId');
 
         if (!errorNodesId.includes(id)) {
-          errorNodes.push({ id: node.id, name: fullName[0], type: 'clip-path' });
+          errorNodes.push({ id, name: fullName[0], type: 'clip-path' });
         }
 
         errorNodesId.push(id);
@@ -110,19 +111,11 @@ figma.ui.onmessage = (message): void => {
     createExport();
   }
 
-  // Select a list of given nodes, search by id
-  if (message.viewNode) {
-    const nodeId = nameData(message.viewNode).id;
-    const selectedNode = figma.currentPage.findAll((n) => n.id === nodeId);
-
-    figma.currentPage.selection = selectedNode;
-    figma.viewport.scrollAndZoomIntoView(selectedNode);
-  }
-
-  // Select a list of given nodes, search by name
-  if (message.viewDuplicatedNode) {
-    const nodeName = nameData(message.viewDuplicatedNode).fullNameMark[0].replace(' /', '');
-    const selectedNode = figma.currentPage.findAll((n) => n.name === nodeName);
+  // Select a list of given nodes
+  if (message.viewNodes) {
+    const idList = message.viewNodes;
+    const idArray = idList.constructor === Array ? idList : [idList];
+    const selectedNode = figma.currentPage.findAll((n) => idArray.includes(n.id));
 
     figma.currentPage.selection = selectedNode;
     figma.viewport.scrollAndZoomIntoView(selectedNode);

@@ -9,14 +9,15 @@ import nameData, { startMark } from './nameData';
 function findFrames(): FindFrames {
   const frameList: FrameNode[] = [];
   const nameList: string[] = [];
-  const duplicatedList: FrameNode[] = [];
+  const duplicatedList: FrameNode[][] = [];
 
   figma.currentPage.children.forEach((node) => {
     if (node.type !== 'FRAME') { return; }
     if (!node.name.startsWith(startMark)) { return; }
 
     if (nameList.includes(node.name)) {
-      duplicatedList.push(node);
+      const otherNode = frameList.find((frame) => frame.name === node.name);
+      duplicatedList.push([node, otherNode]);
     }
 
     nameList.push(node.name);
@@ -41,11 +42,13 @@ export default function (): FrameNode[] | undefined {
 
   // Throw error if there are multiple frames with the same name
   if (findFramesResult.duplicates) {
-    originalList.forEach((frame) => errorNodes.push({
-      id: frame.id,
-      name: frame.name,
-      type: 'duplicated name'
-    }));
+    originalList.forEach((frame) => {
+      errorNodes.push({
+        id: frame.map((f) => f.id),
+        name: frame[0].name,
+        type: 'duplicated name'
+      });
+    });
 
     showError('contentError', errorNodes);
 

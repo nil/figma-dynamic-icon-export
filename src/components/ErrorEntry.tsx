@@ -9,19 +9,16 @@ type Props = {
 };
 
 class ErrorEntry extends React.Component<Props, {}> {
-  viewNode = (name: string, type: string): void => {
-    if (type === 'duplicated name') {
-      parent.postMessage({ pluginMessage: { viewDuplicatedNode: name } }, '*');
-    } else {
-      parent.postMessage({ pluginMessage: { viewNode: name } }, '*');
-    }
+  viewNode = (id: string | string[]): void => {
+    parent.postMessage({ pluginMessage: { viewNodes: id } }, '*');
   };
 
   render(): JSX.Element {
     const {
       type,
       message,
-      name
+      name,
+      id
     } = this.props;
 
     const errorNameClass = 'error-name type type--pos-large-bold';
@@ -40,7 +37,7 @@ class ErrorEntry extends React.Component<Props, {}> {
       errorName = (
         <div
           className={errorNameClass}
-          onClick={(): void => this.viewNode(name, type)}
+          onClick={(): void => this.viewNode(id)}
           role="link"
           tabIndex={0}
         >

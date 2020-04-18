@@ -1,13 +1,13 @@
 // Custom types
 interface ErrorEntry {
-  id: string;
+  id: string | string[];
   name: string;
   type: string;
 }
 
 interface FindFrames {
   duplicates: boolean;
-  frames: FrameNode[];
+  frames: FrameNode[] | FrameNode[][];
 }
 
 interface NameData {
