@@ -1,5 +1,6 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
+import JSZip from '../node_modules/jszip/dist/jszip.min';
 
 import SettingsPanel from './panels/SettingsPanel';
 import LoadingPanel from './panels/LoadingPanel';
@@ -9,12 +10,55 @@ import IconReload from './assets/reload.svg';
 import IconSettings from './assets/settings.svg';
 
 import './style/index.css';
+import ErrorPanel from './panels/ErrorPanel';
 
 
 const App = (): JSX.Element => {
   const [runStatus, setRunStatus] = React.useState(false);
   const [settingsPanel, setSettingsPanel] = React.useState(false);
   const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
+
+  // Recive messages from code.ts
+  window.onmessage = async (event): Promise<void> => {
+    const { pluginMessage } = event.data;
+
+    if (!pluginMessage) { return; }
+
+    // Replace current panel with a new one
+    if (pluginMessage.changePanel) {
+      switch (pluginMessage.changePanel.name) {
+        default:
+        case 'loading': setActivePanel(<LoadingPanel />); break;
+        case 'settings': setActivePanel(<SettingsPanel />); break;
+        case 'error': setActivePanel(<ErrorPanel entries={pluginMessage.changePanel.content} />); break;
+        // case 'success': setActivePanel(<SuccessPanel />); break;
+      }
+    }
+
+    // Generate exportable zip
+    if (pluginMessage.exportableAssets) {
+      // eslint-disable-next-line consistent-return
+      return new Promise(() => {
+        const zip = new JSZip();
+
+        pluginMessage.exportableAssets.forEach(({ name, svg }) => {
+          zip.file(`${name}.svg`, svg);
+        });
+
+        zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
+          const blobURL = window.URL.createObjectURL(content);
+          const link = document.createElement('a');
+          link.href = blobURL;
+          link.download = 'icons.zip';
+          link.click();
+        }).then(() => {
+          setTimeout(() => {
+            console.log('donw');
+          }, 2000);
+        });
+      });
+    }
+  };
 
   // Run plugin again
   const runAgain = (): void => {
@@ -29,20 +73,6 @@ const App = (): JSX.Element => {
     window.parent.postMessage({ pluginMessage: { requestSettings: true } }, '*');
     setActivePanel(<SettingsPanel />);
     setSettingsPanel(true);
-  };
-
-  // Recive messages from code.ts
-  window.onmessage = async (event): Promise<void> => {
-    const { pluginMessage } = event.data;
-
-    if (pluginMessage.changePanel) {
-      switch (pluginMessage.changePanel) {
-        default:
-        case 'loading': setActivePanel(<LoadingPanel />); break;
-        case 'settings': setActivePanel(<SettingsPanel />); break;
-        // case 'success': setActivePanel(<SuccessPanel />); break;
-      }
-    }
   };
 
   return (

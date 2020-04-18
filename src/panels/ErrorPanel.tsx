@@ -1,5 +1,5 @@
 import * as React from 'react';
-import ErrorEntry from './ErrorEntry';
+import ErrorEntry from '../components/ErrorEntry';
 
 type Props = {
   entries: ErrorEntry[] | {
@@ -10,7 +10,7 @@ type Props = {
   };
 };
 
-const ErrorMessage = ({ entries }: Props): JSX.Element => {
+const ErrorPanel = ({ entries }: Props): JSX.Element => {
   const errorEntries = entries.map((entry) => (
     <ErrorEntry
       key={entry.id}
@@ -28,4 +28,4 @@ const ErrorMessage = ({ entries }: Props): JSX.Element => {
   );
 };
 
-export default ErrorMessage;
+export default ErrorPanel;

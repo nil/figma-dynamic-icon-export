@@ -1,4 +1,5 @@
 import showError from './showError';
+import { postMessage } from './utils';
 
 
 /**
@@ -75,7 +76,10 @@ export default function (userSettings: UserSettings): FrameNode[] | undefined {
   });
 
   if (cloneList.length === 0) {
-    showError('contentError', { name: 'No content found', message: `0 frames start with ${start}` });
+    postMessage('changePanel', {
+      name: 'error',
+      content: [{ name: 'No content found', message: `0 frames start with ${start}`, id: 'single' }]
+    });
 
     return undefined;
   }

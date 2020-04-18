@@ -2,7 +2,7 @@ import cloneFrames from './utils/cloneFrames';
 import detachInstance from './utils/detachInstance';
 import nameData from './utils/nameData';
 import showError from './utils/showError';
-import { sendUserSettings, getUserSettings } from './utils/utils';
+import { sendUserSettings, getUserSettings, postMessage } from './utils/utils';
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 
@@ -78,7 +78,7 @@ function createExport(): void {
   if (errorNodes.length > 0) {
     showError('contentError', errorNodes);
   } else if (exportableAssets.length > 0) {
-    figma.ui.postMessage({ name: 'exportableAssets', content: exportableAssets });
+    postMessage('exportableAssets', exportableAssets);
   }
 }
 
