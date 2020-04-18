@@ -5,6 +5,7 @@
 import * as React from 'react';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
 import { renderHeader, renderMain } from './utils/renderUi';
+import { startMark, sizeMark, endMark } from './utils/nameData';
 
 import ErrorMessage from './components/ErrorMessage';
 import Loading from './components/Loading';
@@ -58,7 +59,7 @@ onmessage = (event) => {
       renderMain(<Loading />);
     } else if (message.content === 'Settings') {
       renderHeader(false, true);
-      renderMain(<Settings />);
+      renderMain(<Settings startMark={startMark} sizeMark={sizeMark} endMark={endMark} />);
     }
   }
 

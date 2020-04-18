@@ -127,4 +127,10 @@ figma.ui.onmessage = (message): void => {
     figma.currentPage.selection = selectedNode;
     figma.viewport.scrollAndZoomIntoView(selectedNode);
   }
+
+  // Update settings value
+  if (message.settingsUpdate) {
+    console.log(`!!!!!!!!!! ${message.settingsUpdate.name} !!!!!!!!!!`);
+    console.log(`------- ${message.settingsUpdate.value} -------`);
+  }
 };
