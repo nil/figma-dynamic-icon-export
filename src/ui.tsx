@@ -1,7 +1,3 @@
-/* eslint-disable no-restricted-globals */
-/* eslint-disable consistent-return */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 import * as React from 'react';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
 import { renderHeader, renderMain } from './utils/renderUi';
@@ -20,7 +16,7 @@ import './style/index.css';
  *
  * @param content - string or array
  */
-const correctErrorArray = (content) => {
+const correctErrorArray = (content): ErrorEntry[] => {
   const { message, name } = content;
   let array = [];
 
@@ -39,16 +35,7 @@ renderHeader(true, false);
 renderMain(<Loading />);
 
 
-// function renderUI(component): void {
-//   ReactDOM.render(
-//     <main className="plugin-ui">
-//       <Header />
-//       {component}
-//     </main>, document.getElementById('plugin-ui')
-//   );
-// }
-
-onmessage = (event) => {
+onmessage = (event): Promise<Blob> => {
   const message = event.data.pluginMessage;
 
   if (!message) { return; }
@@ -69,6 +56,7 @@ onmessage = (event) => {
   }
 
   if (message.name === 'exportableAssets') {
+    // eslint-disable-next-line consistent-return
     return new Promise(() => {
       const zip = new JSZip();
 
