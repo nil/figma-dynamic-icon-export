@@ -3,7 +3,7 @@ import SettingsInput from '../components/SettingsInput';
 
 
 const SettingsPanel = (): JSX.Element => {
-  const [userSettings, setUserSettings] = React.useState({ start: '', end: '' });
+  const [userSettings, setUserSettings] = React.useState({ start: '', end: '', size: '' });
 
   window.onmessage = async (event): Promise<void> => {
     if (event.data.pluginMessage.userSettings) {
@@ -24,6 +24,13 @@ const SettingsPanel = (): JSX.Element => {
         label="End mark"
         type="text"
         id="end"
+        userSettings={userSettings}
+        setUserSettings={setUserSettings}
+      />
+      <SettingsInput
+        label="Size mark"
+        type="text"
+        id="size"
         userSettings={userSettings}
         setUserSettings={setUserSettings}
       />
