@@ -1,9 +1,10 @@
 import cloneFrames from './utils/cloneFrames';
 import detachInstance from './utils/detachInstance';
-import nameData, { startMark } from './utils/nameData';
+import nameData from './utils/nameData';
 import showError from './utils/showError';
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
+const defaultSettings = { start: '$', end: ' ', size: ',' };
 
 let exportableAssets: { name: string; svg: string }[] = [];
 let errorNodes: ErrorEntry[] = [];
@@ -12,8 +13,8 @@ let errorNodesId: string[] = [];
 // Render UI
 figma.showUI(__html__, { width: 360, height: 207 });
 
-async function getSvgCode(): Promise<void> {
-  const cloneList: FrameNode[] = cloneFrames();
+async function getSvgCode(userSettings: UserSettings): Promise<void> {
+  const cloneList: FrameNode[] = cloneFrames(userSettings);
 
   // Empty arrays
   exportableAssets = [];
@@ -21,10 +22,11 @@ async function getSvgCode(): Promise<void> {
   errorNodesId = [];
 
   // Get SVG code from the frames in cloneList
-  if (cloneList.length > 0) {
+  if (cloneList) {
     cloneList.forEach(async (node) => {
       const nodeData = nameData(node.name);
-      node.y += 56;
+      const name = node.getPluginData('name');
+      const originalId = node.getPluginData('originalId');
 
       // Detach instance
       node.children.forEach((child) => {
@@ -55,24 +57,17 @@ async function getSvgCode(): Promise<void> {
 
       // Check if there is any clipPath error
       if (clipPathPattern.test(svg)) {
-        const { fullName } = nameData(node.name);
-        const id = node.getPluginData('originalId');
-
-        if (!errorNodesId.includes(id)) {
-          errorNodes.push({ id, name: fullName[0], type: 'clip-path' });
+        if (!errorNodesId.includes(originalId)) {
+          errorNodes.push({ id: originalId, name, type: 'clip-path' });
         }
 
-        errorNodesId.push(id);
+        errorNodesId.push(originalId);
         node.remove();
       } else {
-        const name = nameData(node.name).fullName[0];
-
         exportableAssets.push({ name, svg });
         node.remove();
       }
     });
-  } else {
-    showError('contentError', { name: 'No content found', message: `0 frames start with ${startMark}` });
   }
 }
 
@@ -84,8 +79,19 @@ function createExport(): void {
   }
 }
 
-getSvgCode().then(() => {
-  createExport();
+function runPlugin(userSettings: UserSettings): void {
+  getSvgCode(userSettings).then(() => {
+    createExport();
+  });
+}
+
+figma.clientStorage.getAsync('userSettings').then((userSettings) => {
+  if (!userSettings) {
+    figma.clientStorage.setAsync('userSettings', defaultSettings);
+    runPlugin(defaultSettings);
+  } else {
+    runPlugin(userSettings);
+  }
 });
 
 
@@ -123,7 +129,40 @@ figma.ui.onmessage = (message): void => {
 
   // Update settings value
   if (message.settingsUpdate) {
-    console.log(`!!!!!!!!!! ${message.settingsUpdate.name} !!!!!!!!!!`);
-    console.log(`------- ${message.settingsUpdate.value} -------`);
+    figma.clientStorage.getAsync('userSettings').then((userSettings) => {
+      figma.clientStorage.setAsync('userSettings', {
+        ...userSettings,
+        [message.settingsUpdate.name]: message.settingsUpdate.value
+      });
+    });
+    // figma.clientStorage.setAsync('userSettings', message.settingsUpdate);
+    // console.log(figma.currentPage.getPluginData(message.settingsUpdate.name));
+    // figma.currentPage.setPluginData(message.settingsUpdate.name, message.settingsUpdate)
+  }
+
+  if (message.userSettings) {
+    figma.clientStorage.setAsync('userSettings', message.userSettings);
+  }
+
+  if (message.runAgain) {
+    console.log('the plugin is running again');
+    // clearInterval(updateSetting);
   }
 };
+
+setTimeout(() => {
+  figma.ui.postMessage({ changeState: true });
+}, 3000);
+
+// const updateSetting = setInterval(() => {
+//   figma.clientStorage.getAsync('dataStart').then((value) => {
+//     figma.ui.postMessage({ previewSetting: value });
+//   });
+// }, 200);
+
+// figma.clientStorage.getAsync('start').then((value) => {
+//   figma.ui.postMessage({ dataStart: value });
+// });
+figma.clientStorage.getAsync('userSettings').then((value) => {
+  figma.ui.postMessage({ userSettings: value });
+});

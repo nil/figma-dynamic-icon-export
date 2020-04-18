@@ -1,81 +1,66 @@
 import * as React from 'react';
-import JSZip from '../node_modules/jszip/dist/jszip.min';
-import { renderHeader, renderMain } from './utils/renderUi';
-import { startMark, sizeMark, endMark } from './utils/nameData';
+import * as ReactDOM from 'react-dom';
 
-import ErrorMessage from './components/ErrorMessage';
-import Loading from './components/Loading';
-import Settings from './components/Settings';
-import Success from './components/Success';
+import HeaderEntry from './components/HeaderEntry';
+import SettingsInput from './components/SettingsInput';
+import IconReload from './assets/reload.svg';
+import IconSettings from './assets/settings.svg';
 
 import './style/index.css';
 
-/**
- * Convert a simple object to an array of ErrorEntries, this is done so
- * multiple error types can be displayed with the same React component
- *
- * @param content - string or array
- */
-const correctErrorArray = (content): ErrorEntry[] => {
-  const { message, name } = content;
-  let array = [];
 
-  if (Array.isArray(content)) {
-    array = content;
-  } else {
-    array = [{ name, message, id: 'single' }];
-  }
-
-  return array;
-};
+const App = (): JSX.Element => {
+  const [runStatus, setRunStatus] = React.useState(false);
+  const [settingsPanel, setSettingsPanel] = React.useState(false);
+  const [userSettings, setUserSettings] = React.useState({ start: 'hello', end: 'goodbye' });
 
 
-// Render initial UI
-renderHeader(true, false);
-renderMain(<Loading />);
-
-
-onmessage = (event): Promise<Blob> => {
-  const message = event.data.pluginMessage;
-
-  if (!message) { return; }
-
-  if (message.name === 'headerAction') {
-    if (message.content === 'Run again') {
-      renderHeader(true, false);
-      renderMain(<Loading />);
-    } else if (message.content === 'Settings') {
-      renderHeader(false, true);
-      renderMain(<Settings startMark={startMark} sizeMark={sizeMark} endMark={endMark} />);
+  // Run plugin again
+  const runAgain = (): void => {
+    if (!runStatus) {
+      window.parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
+      setRunStatus(true);
     }
-  }
+  };
 
-  if (message.name === 'contentError') {
-    renderHeader(false, false);
-    renderMain(<ErrorMessage entries={correctErrorArray(message.content)} />);
-  }
+  // Open settings panel
+  const openSettings = (): void => {
+    setSettingsPanel(true);
+  };
 
-  if (message.name === 'exportableAssets') {
-    // eslint-disable-next-line consistent-return
-    return new Promise(() => {
-      const zip = new JSZip();
+  // Recive messages from code.ts
+  window.onmessage = async (event): Promise<void> => {
+    const { pluginMessage } = event.data;
 
-      message.content.forEach(({ name, svg }) => {
-        zip.file(`${name}.svg`, svg);
-      });
+    if (event.data.pluginMessage.command === 'setKey') {
+      // setEditingKey(true);
+    }
 
-      zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
-        const blobURL = window.URL.createObjectURL(content);
-        const link = document.createElement('a');
-        link.href = blobURL;
-        link.download = 'icons.zip';
-        link.click();
-      }).then(() => {
-        setTimeout(() => {
-          renderHeader(false, false);
-          renderMain(<Success length={message.content.length} />);
-        }, 2000);
-      });
-    });
-  }
+    if (pluginMessage.userSettings) {
+      setUserSettings(pluginMessage.userSettings);
+    }
+  };
+
+  return (
+    <>
+      <header className={`header ${settingsPanel ? 'header--open' : ''}`}>
+        <div className="header-layout type type--pos-small-bold">
+          <HeaderEntry text="Run again" icon={IconReload} disabled={runStatus} onClick={runAgain} />
+          <HeaderEntry text="Settings" icon={IconSettings} open={settingsPanel} onClick={openSettings} />
+        </div>
+      </header>
+      <main className="main">
+        <button type="button" className="action1className">Action 1</button>
+        <button type="button" className="button button--secondary" onClick={(): void => {}}>Action 2</button>
+        <div><SettingsInput label="Start mark" type="text" id="start" userSettings={userSettings} setUserSettings={setUserSettings} /></div>
+        <div><SettingsInput label="End mark" type="text" id="end" userSettings={userSettings} setUserSettings={setUserSettings} /></div>
+        {userSettings.start}
+        ,
+        {' '}
+        {userSettings.end}
+      </main>
+    </>
+  );
 };
+
+ReactDOM.render(<App />, document.getElementById('plugin-ui'));

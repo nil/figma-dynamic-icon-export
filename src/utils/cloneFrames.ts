@@ -1,12 +1,13 @@
 import showError from './showError';
-import nameData, { startMark } from './nameData';
 
 
 /**
  * Get all frames that start with a specific string
  * or a portion of that list if it contains duplicated names
+ *
+ * @param startMark - String that defines which frames are exportable
  */
-function findFrames(): FindFrames {
+function findFrames(startMark): FindFrames {
   const frameList: FrameNode[] = [];
   const nameList: string[] = [];
   const duplicatedList: FrameNode[][] = [];
@@ -33,10 +34,13 @@ function findFrames(): FindFrames {
 
 /**
  * Clone exportable frames and export results
+ *
+ * @param userSettings - Setting values defined by the user
  */
-export default function (): FrameNode[] | undefined {
+export default function (userSettings: UserSettings): FrameNode[] | undefined {
+  const { start, end, size } = userSettings;
   const errorNodes: ErrorEntry[] = [];
-  const findFramesResult: FindFrames = findFrames();
+  const findFramesResult: FindFrames = findFrames(start);
   const originalList = findFramesResult.frames;
   const cloneList: FrameNode[] = [];
 
@@ -57,16 +61,24 @@ export default function (): FrameNode[] | undefined {
 
   // Clone exportable nodes
   originalList.forEach((node) => {
-    const names = nameData(node.name).fullName;
+    const pattern = new RegExp(`(?:\\${start})?(.*?)\\${end}(?:\\/ )?(.*)`, 'i');
+    const chopped = node.name.match(pattern);
+    const newName = chopped[1].split(size).map((s) => `${s} / ${chopped[2]}`);
 
-    names.forEach((name) => {
+    newName.forEach((name) => {
       const clone = node.clone();
 
       clone.setPluginData('originalId', node.id);
-      clone.name = name;
+      clone.setPluginData('name', name);
       cloneList.push(clone);
     });
   });
+
+  if (cloneList.length === 0) {
+    showError('contentError', { name: 'No content found', message: `0 frames start with ${start}` });
+
+    return undefined;
+  }
 
   return cloneList;
 }

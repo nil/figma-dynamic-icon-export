@@ -1,8 +1,7 @@
-export const startMark = '$';
-export const endMark = ' ';
-export const sizeMark = ',';
+export const startMark = '$';// figma.currentPage.getPluginData('startMark') || '$';
+export const endMark = ' ';// figma.currentPage.getPluginData('endMark') || ' ';
+export const sizeMark = ',';// figma.currentPage.getPluginData('sizeMark') || ',';
 export const idMark = ';';
-
 
 export default function (name: string): NameData {
   const pattern = new RegExp(`(?:\\${startMark})?(.*?)\\${endMark}(?:\\/ )?(.*?)(?:\\${idMark}|$)(.*)`, 'i');

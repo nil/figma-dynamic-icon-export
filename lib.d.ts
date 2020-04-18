@@ -19,3 +19,9 @@ interface NameData {
   fullNameMark: string[];
   fullNameId: string[] | undefined;
 }
+
+interface UserSettings {
+  start: string;
+  end: string;
+  size: string;
+}

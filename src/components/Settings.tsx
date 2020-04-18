@@ -2,13 +2,13 @@
 import * as React from 'react';
 
 type Props = {
-  startMark: string;
-  sizeMark: string;
-  endMark: string;
+  start: string;
+  size: string;
+  end: string;
 };
 
-const Settings = ({ startMark, sizeMark, endMark }: Props): JSX.Element => {
-  const [markState, setMarkState] = React.useState({ startMark, sizeMark, endMark });
+const Settings = ({ start, size, end }: Props): JSX.Element => {
+  const [markState, setMarkState] = React.useState({ start, size, end });
 
   const handleChange = (event): void => {
     const { name, value } = event.target;
@@ -17,7 +17,7 @@ const Settings = ({ startMark, sizeMark, endMark }: Props): JSX.Element => {
   };
 
   const input = (label: string): JSX.Element => {
-    const name = label.toLowerCase().replace(/ ([a-z])/gi, (a, b) => b.toUpperCase());
+    const name = label.toLowerCase().replace(/ .*/gi, '');
 
     return (
       <div className="settings-entry">
