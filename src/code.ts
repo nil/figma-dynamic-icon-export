@@ -13,6 +13,13 @@ let errorNodesId: string[] = [];
 // Render UI
 figma.showUI(__html__, { width: 360, height: 207 });
 
+// Send settings to the UI
+const sendUserSettings = (): void => {
+  figma.clientStorage.getAsync('userSettings').then((value) => {
+    figma.ui.postMessage({ userSettings: value || defaultSettings });
+  });
+};
+
 async function getSvgCode(userSettings: UserSettings): Promise<void> {
   const cloneList: FrameNode[] = cloneFrames(userSettings);
 
@@ -85,15 +92,10 @@ function runPlugin(userSettings: UserSettings): void {
   });
 }
 
-figma.clientStorage.getAsync('userSettings').then((userSettings) => {
-  if (!userSettings) {
-    figma.clientStorage.setAsync('userSettings', defaultSettings);
-    runPlugin(defaultSettings);
-  } else {
-    runPlugin(userSettings);
-  }
+sendUserSettings();
+getSvgCode().then(() => {
+  createExport();
 });
-
 
 figma.ui.onmessage = (message): void => {
   // Close plugin
@@ -101,20 +103,24 @@ figma.ui.onmessage = (message): void => {
     figma.closePlugin();
   }
 
-  // Send message to re-render UI from the header
-  if (message.headerAction) {
-    figma.ui.postMessage({ name: 'headerAction', content: message.headerAction });
-
-    if (message.headerAction === 'Run again') {
-      getSvgCode().then(() => {
-        createExport();
-      });
-    }
+  // Run plugin again
+  if (message.runAgain) {
+    console.log('the plugin is running again');
   }
 
   // Download icons again
   if (message.downloadAgain) {
     createExport();
+  }
+
+  // Update settings value
+  if (message.userSettings) {
+    figma.clientStorage.setAsync('userSettings', message.userSettings);
+  }
+
+  // Send user settings as requested
+  if (message.requestSettings) {
+    sendUserSettings();
   }
 
   // Select a list of given nodes
@@ -126,43 +132,4 @@ figma.ui.onmessage = (message): void => {
     figma.currentPage.selection = selectedNode;
     figma.viewport.scrollAndZoomIntoView(selectedNode);
   }
-
-  // Update settings value
-  if (message.settingsUpdate) {
-    figma.clientStorage.getAsync('userSettings').then((userSettings) => {
-      figma.clientStorage.setAsync('userSettings', {
-        ...userSettings,
-        [message.settingsUpdate.name]: message.settingsUpdate.value
-      });
-    });
-    // figma.clientStorage.setAsync('userSettings', message.settingsUpdate);
-    // console.log(figma.currentPage.getPluginData(message.settingsUpdate.name));
-    // figma.currentPage.setPluginData(message.settingsUpdate.name, message.settingsUpdate)
-  }
-
-  if (message.userSettings) {
-    figma.clientStorage.setAsync('userSettings', message.userSettings);
-  }
-
-  if (message.runAgain) {
-    console.log('the plugin is running again');
-    // clearInterval(updateSetting);
-  }
 };
-
-setTimeout(() => {
-  figma.ui.postMessage({ changeState: true });
-}, 3000);
-
-// const updateSetting = setInterval(() => {
-//   figma.clientStorage.getAsync('dataStart').then((value) => {
-//     figma.ui.postMessage({ previewSetting: value });
-//   });
-// }, 200);
-
-// figma.clientStorage.getAsync('start').then((value) => {
-//   figma.ui.postMessage({ dataStart: value });
-// });
-figma.clientStorage.getAsync('userSettings').then((value) => {
-  figma.ui.postMessage({ userSettings: value });
-});
