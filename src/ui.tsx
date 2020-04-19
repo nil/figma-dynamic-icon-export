@@ -42,6 +42,7 @@ const App = (): JSX.Element => {
     if (pluginMessage.showError) {
       setActivePanel(<ErrorPanel entries={pluginMessage.showError} />);
       setRunStatus(false);
+      setSettingsPanel(false);
     }
 
     // Generate exportable zip
@@ -64,6 +65,7 @@ const App = (): JSX.Element => {
           setTimeout(() => {
             setActivePanel(<SuccessPanel length={pluginMessage.exportableAssets.length} />);
             setRunStatus(false);
+            setSettingsPanel(false);
           }, 2000);
         });
       });
@@ -77,6 +79,7 @@ const App = (): JSX.Element => {
     if (!runStatus) {
       window.parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
       setRunStatus(true);
+      setSettingsPanel(false);
     }
   };
 
