@@ -1,6 +1,6 @@
 {
   "name": "Dynamic Icon Export",
-  "id": "820683838077027895",
+  "id": "833685193586385445",
   "api": "1.0.0",
   "main": "dist/code.js",
   "ui": "dist/ui.html"
