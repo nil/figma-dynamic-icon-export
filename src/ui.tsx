@@ -18,7 +18,9 @@ const App = (): JSX.Element => {
   const [settingsPanel, setSettingsPanel] = React.useState(false);
   const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
 
-  // Recive messages from code.ts
+  /**
+   * Recive messages from code.ts
+   */
   window.onmessage = async (event): Promise<void> => {
     const { pluginMessage } = event.data;
 
@@ -30,9 +32,13 @@ const App = (): JSX.Element => {
         default:
         case 'loading': setActivePanel(<LoadingPanel />); break;
         case 'settings': setActivePanel(<SettingsPanel />); break;
-        case 'error': setActivePanel(<ErrorPanel entries={pluginMessage.changePanel.content} />); break;
         // case 'success': setActivePanel(<SuccessPanel />); break;
       }
+    }
+
+    // Show error message
+    if (pluginMessage.showError) {
+      setActivePanel(<ErrorPanel entries={pluginMessage.showError} />);
     }
 
     // Generate exportable zip
@@ -60,7 +66,9 @@ const App = (): JSX.Element => {
     }
   };
 
-  // Run plugin again
+  /**
+   * Run plugin again
+   */
   const runAgain = (): void => {
     if (!runStatus) {
       window.parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
@@ -68,7 +76,9 @@ const App = (): JSX.Element => {
     }
   };
 
-  // Open settings panel
+  /**
+   * Open settings panel
+   */
   const openSettings = (): void => {
     window.parent.postMessage({ pluginMessage: { requestSettings: true } }, '*');
     setActivePanel(<SettingsPanel />);
