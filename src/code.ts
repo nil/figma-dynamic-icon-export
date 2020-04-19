@@ -1,6 +1,5 @@
 import cloneFrames from './utils/cloneFrames';
 import detachInstance from './utils/detachInstance';
-import nameData from './utils/nameData';
 import { sendUserSettings, getUserSettings, postMessage } from './utils/utils';
 
 
@@ -28,9 +27,9 @@ const getSvgCode = async (userSettings): Promise<void> => {
   // Get SVG code from the frames in cloneList
   if (cloneList) {
     cloneList.forEach(async (node) => {
-      const nodeData = nameData(node.name);
-      const name = node.getPluginData('name');
       const originalId = node.getPluginData('originalId');
+      const name = node.getPluginData('name');
+      const size = parseFloat(name.match(/[0-9].(?=\s)/)[0]);
 
       // Detach instance
       node.children.forEach((child) => {
@@ -47,7 +46,7 @@ const getSvgCode = async (userSettings): Promise<void> => {
       node.children.forEach((child) => {
         if (child.type === 'VECTOR') {
           child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
-          node.resize(nodeData.sizes[0], nodeData.sizes[0]);
+          node.resize(size, size);
         }
       });
 
