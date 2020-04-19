@@ -24,5 +24,12 @@ export const getUserSettings = (callback): void => {
  * Send user settings to the UI
  */
 export const sendUserSettings = (): void => {
-  getUserSettings((value) => postMessage('userSettings', value || defaultSettings));
+  getUserSettings((value) => {
+    if (value) {
+      postMessage('userSettings', value);
+    } else {
+      postMessage('userSettings', defaultSettings);
+      figma.clientStorage.setAsync('userSettings', defaultSettings);
+    }
+  });
 };
