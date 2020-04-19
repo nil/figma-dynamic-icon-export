@@ -2,15 +2,16 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
 
+import ErrorPanel from './panels/ErrorPanel';
 import SettingsPanel from './panels/SettingsPanel';
 import LoadingPanel from './panels/LoadingPanel';
+import SuccessPanel from './panels/SuccessPanel';
 
 import HeaderEntry from './components/HeaderEntry';
 import IconReload from './assets/reload.svg';
 import IconSettings from './assets/settings.svg';
 
 import './style/index.css';
-import ErrorPanel from './panels/ErrorPanel';
 
 
 const App = (): JSX.Element => {
@@ -39,6 +40,7 @@ const App = (): JSX.Element => {
     // Show error message
     if (pluginMessage.showError) {
       setActivePanel(<ErrorPanel entries={pluginMessage.showError} />);
+      setRunStatus(false);
     }
 
     // Generate exportable zip
@@ -59,7 +61,8 @@ const App = (): JSX.Element => {
           link.click();
         }).then(() => {
           setTimeout(() => {
-            console.log('donw');
+            setActivePanel(<SuccessPanel length={pluginMessage.exportableAssets.length} />);
+            setRunStatus(false);
           }, 2000);
         });
       });

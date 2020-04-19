@@ -4,7 +4,7 @@ type Props = {
   length: number;
 };
 
-const Success = ({ length }: Props): JSX.Element => {
+const SuccessPanel = ({ length }: Props): JSX.Element => {
   const sendMessage = (content): void => {
     parent.postMessage({ pluginMessage: content }, '*');
   };
@@ -30,4 +30,4 @@ const Success = ({ length }: Props): JSX.Element => {
   );
 };
 
-export default Success;
+export default SuccessPanel;

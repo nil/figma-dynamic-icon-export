@@ -97,8 +97,9 @@ const runPlugin = (): void => {
   errorNodes = [];
   errorNodesId = [];
 
-  // Send setting values to the UI
+  // Send info to the ui
   sendUserSettings();
+  postMessage('changePanel', 'loading');
 
   // Get setting values and export SVG
   getUserSettings((userSettings) => {
