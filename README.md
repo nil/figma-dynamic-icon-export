@@ -1,12 +1,13 @@
 # Dynamic Icon Export
 
-A Figma plugin to export multiple frames as an SVG with a single path. No need to manually clone the frame, detach the instances, outline the vectors and flatten them, Dynamic Icon Export does this for you without modifying the original frame, so you can still edit the icon in the future.
-
-Install on Figma
 [![Version](https://img.shields.io/github/package-json/v/nil/figma-dynamic-icon-export)](https://github.com/nil/figma-dynamic-icon-export)
 [![Dependencies status](https://img.shields.io/david/nil/figma-dynamic-icon-export)](https://david-dm.org/nil/figma-dynamic-icon-export)
 [![Dev dependencies status](https://img.shields.io/david/dev/nil/figma-dynamic-icon-export)](https://david-dm.org/nil/figma-dynamic-icon-export?type=dev)
 [![License](https://img.shields.io/github/license/nil/figma-dynamic-icon-export)](http://https://github.com/nil/figma-dynamic-icon-export/blob/master/LICENSE)
+
+A Figma plugin to export multiple frames as an SVG with a single path. No need to manually clone the frame, detach the instances, outline the vectors and flatten them, Dynamic Icon Export does this for you without modifying the original frame, so you can still edit the icon in the future.
+
+Install on Figma
 
 ## How does it work
 
@@ -23,28 +24,25 @@ _WIP_
 
 ## Local development
 
-Dynamic Icon Export is wrote using the Figma API with TypeScript and the UI is build with React and PostCSS.
+Dynamic Icon Export is wrote using the [Figma Plugin API](https://www.figma.com/plugin-docs/intro/) with [TypeScript](https://www.figma.com/plugin-docs/typescript/), as recommended by them. The UI is build with [React](https://reactjs.org/) to create an interactive and reactive interface and it also uses [PostCSS](https://postcss.org/), as I personally like to write CSS with nested selectors.
 
-Clone the repository:
+To begin local development of the plugin, first clone the repository:
 
 ```sh
 git clone https://github.com/nil/figma-dynamic-icon-export
+
 cd figma-dynamic-icon-export
 ```
 
-Install all the dependencies:
+Then install all the dependencies and run Webpack:
 
 ```sh
 npm install
-```
 
-Build the plugin:
-
-```sh
 npm run serve
 ```
 
-Use the plugin locally:
+Finally, install the plugin locally:
 
 1. Open the desktop app and go to `Plugins`.
 2. Click on the `+` next to `Development` on the right sidebar.
