@@ -22,16 +22,17 @@ const HeaderEntry = ({
   };
 
   return (
-    <>
-      <label htmlFor={id}>{label}</label>
+    <div className="settings-entry">
+      <label htmlFor={id} className="type type--pos-small-normal settings-label">{label}</label>
       <input
         type={type}
         value={userSettings[id]}
         placeholder={label}
         name={id}
+        className={`input settings-input settings-input--${type}`}
         onChange={updateUserSettings}
       />
-    </>
+    </div>
   );
 };
 
