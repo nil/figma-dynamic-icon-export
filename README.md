@@ -1,4 +1,4 @@
-# Dynamic Icon Export
+# [Dynamic Icon Export](https://www.figma.com/community/plugin/833685193586385445)
 
 [![Version](https://img.shields.io/github/package-json/v/nil/figma-dynamic-icon-export)](https://github.com/nil/figma-dynamic-icon-export)
 [![Dependencies status](https://img.shields.io/david/nil/figma-dynamic-icon-export)](https://david-dm.org/nil/figma-dynamic-icon-export)
@@ -7,11 +7,13 @@
 
 A Figma plugin to export multiple frames as an SVG with a single path. No need to manually clone the frame, detach the instances, outline the vectors and flatten them, Dynamic Icon Export does this for you without modifying the original frame, so you can still edit the icon in the future.
 
-Install on Figma
+[Install on Figma](https://www.figma.com/community/plugin/833685193586385445)
 
 ## How does it work
 
-_WIP_
+This plugin automatizes a very common and tedious task. It exports all the icons in a page and keeps the original frame editable, with all the layers untouched.
+
+Under the hood, this plugin clones every frame that starts with a specific character, by default `$` but can be changed by the user. Then it outlines and flattens all its contents, so when exporting the SVG it only contains one path. Finally, it resizes the frame according to the size set by the user and it generates a .zip file containing all the icons.
 
 ## Features roadmap
 
@@ -23,6 +25,8 @@ _WIP_
 - [ ] Optimize the icon with SVGO before exporting
 - [ ] Hide some layers when exporting
 - [ ] Show list of exported icons on the UI
+- [ ] Export only a few of the icons
+- [ ] Only have size folder when there are multiple sizes
 
 ## Local development
 
@@ -51,6 +55,6 @@ Finally, install the plugin locally:
 3. Choose the `manifest.json` inside the figma-dynamic-icon-export you have just cloned.
 4. Run the plugin by going to `Menu > Plugins > Development > Dynamic Icon Export`.
 
-# License
+## License
 
 Copyright © 2020 Nil Vila. Released under the [MIT License](http://https://github.com/nil/figma-dynamic-icon-export/blob/master/LICENSE).
