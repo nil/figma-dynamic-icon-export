@@ -1,6 +1,6 @@
 {
   "name": "figma-dynamic-icon-export",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Export icons in a dynamic way",
   "main": "dist/code.js",
   "scripts": {
