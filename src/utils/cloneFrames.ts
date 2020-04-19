@@ -1,29 +1,27 @@
-import showError from './showError';
-import nameData, { startMark, idMark } from './nameData';
+import { postMessage } from './utils';
 
 
 /**
  * Get all frames that start with a specific string
  * or a portion of that list if it contains duplicated names
  *
- * @param checkDuplicates - Check if the final list includes frames with duplicated names
+ * @param startMark - String that defines which frames are exportable
  */
-function findFrames(checkDuplicates: boolean): FindFrames {
+function findFrames(startMark): FindFrames {
   const frameList: FrameNode[] = [];
   const nameList: string[] = [];
-  const duplicatedList: FrameNode[] = [];
+  const duplicatedList: FrameNode[][] = [];
 
   figma.currentPage.children.forEach((node) => {
     if (node.type !== 'FRAME') { return; }
     if (!node.name.startsWith(startMark)) { return; }
 
-    if (checkDuplicates) {
-      if (nameList.includes(node.name)) {
-        duplicatedList.push(node);
-      }
-      nameList.push(node.name);
+    if (nameList.includes(node.name)) {
+      const otherNode = frameList.find((frame) => frame.name === node.name);
+      duplicatedList.push([node, otherNode]);
     }
 
+    nameList.push(node.name);
     frameList.push(node);
   });
 
@@ -36,38 +34,51 @@ function findFrames(checkDuplicates: boolean): FindFrames {
 
 /**
  * Clone exportable frames and export results
+ *
+ * @param userSettings - Setting values defined by the user
  */
-export default function (): FrameNode[] | undefined {
+export default function (userSettings: UserSettings): FrameNode[] | undefined {
+  const { start, end, size } = userSettings;
   const errorNodes: ErrorEntry[] = [];
-  const findFramesResult: FindFrames = findFrames(true);
+  const findFramesResult: FindFrames = findFrames(start);
   const originalList = findFramesResult.frames;
+  const cloneList: FrameNode[] = [];
 
   // Throw error if there are multiple frames with the same name
   if (findFramesResult.duplicates) {
-    originalList.forEach((frame) => errorNodes.push({
-      id: frame.id,
-      name: frame.name,
-      type: 'duplicated name'
-    }));
+    originalList.forEach((frame) => {
+      errorNodes.push({
+        id: frame.map((f) => f.id),
+        name: frame[0].name,
+        type: 'duplicated name'
+      });
+    });
 
-    showError('contentError', errorNodes);
+    postMessage('showError', errorNodes);
 
     return undefined;
   }
 
   // Clone exportable nodes
   originalList.forEach((node) => {
-    const names = nameData(node.name).fullNameMark.map((name) => `${name}${idMark}${node.id}`);
+    const pattern = new RegExp(`(?:\\${start})?(.*?)\\${end}(?:\\/ )?(.*)`, 'i');
+    const chopped = node.name.match(pattern);
+    const newName = chopped[1].split(size).map((s) => `${s} / ${chopped[2]}`);
 
-    names.forEach((name) => {
-      node.clone().name = name;
+    newName.forEach((name) => {
+      const clone = node.clone();
+
+      clone.setPluginData('originalId', node.id);
+      clone.setPluginData('name', name);
+      cloneList.push(clone);
     });
   });
 
-  // Throw error if there is a duplicated layer name
-  const idList = originalList.map((node) => node.id);
-  const newFrameList = findFrames(false).frames;
-  const cloneList: FrameNode[] = newFrameList.filter((frame) => !idList.includes(frame.id));
+  if (cloneList.length === 0) {
+    postMessage('showError', [{ name: 'No content found', message: `0 frames start with ${start}`, id: 'single' }]);
+
+    return undefined;
+  }
 
   return cloneList;
 }

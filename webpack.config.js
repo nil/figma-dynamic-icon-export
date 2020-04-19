@@ -1,5 +1,6 @@
 const HtmlWebpackInlineSourcePlugin = require('html-webpack-inline-source-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const postcssNested = require('postcss-nested');
 const path = require('path');
 
 module.exports = (env, argv) => ({
@@ -24,7 +25,7 @@ module.exports = (env, argv) => ({
         test: /\.css$/,
         loader: [
           { loader: 'style-loader' },
-          { loader: 'postcss-loader' }
+          { loader: 'postcss-loader', options: { plugins: postcssNested } }
         ]
       },
       {

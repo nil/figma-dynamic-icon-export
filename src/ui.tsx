@@ -1,92 +1,110 @@
-/* eslint-disable no-restricted-globals */
-/* eslint-disable consistent-return */
-/* eslint-disable @typescript-eslint/explicit-function-return-type */
-
 import * as React from 'react';
+import * as ReactDOM from 'react-dom';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
-import { renderHeader, renderMain } from './utils/renderUi';
 
-import ErrorMessage from './components/ErrorMessage';
-import Loading from './components/Loading';
-import Settings from './components/Settings';
-import Success from './components/Success';
+import ErrorPanel from './panels/ErrorPanel';
+import SettingsPanel from './panels/SettingsPanel';
+import LoadingPanel from './panels/LoadingPanel';
+import SuccessPanel from './panels/SuccessPanel';
 
+import HeaderEntry from './components/HeaderEntry';
+import IconReload from './assets/reload.svg';
+import IconSettings from './assets/settings.svg';
+
+import './style/figma.css';
 import './style/index.css';
 
-/**
- * Convert a simple object to an array of ErrorEntries, this is done so
- * multiple error types can be displayed with the same React component
- *
- * @param content - string or array
- */
-const correctErrorArray = (content) => {
-  const { message, name } = content;
-  let array = [];
 
-  if (Array.isArray(content)) {
-    array = content;
-  } else {
-    array = [{ name, message, id: 'single' }];
-  }
+const App = (): JSX.Element => {
+  const [runStatus, setRunStatus] = React.useState(false);
+  const [settingsPanel, setSettingsPanel] = React.useState(false);
+  const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
 
-  return array;
-};
+  /**
+   * Recive messages from code.ts
+   */
+  window.onmessage = async (event): Promise<void> => {
+    const { pluginMessage } = event.data;
 
+    if (!pluginMessage) { return; }
 
-// Render initial UI
-renderHeader(true, false);
-renderMain(<Loading />);
-
-
-// function renderUI(component): void {
-//   ReactDOM.render(
-//     <main className="plugin-ui">
-//       <Header />
-//       {component}
-//     </main>, document.getElementById('plugin-ui')
-//   );
-// }
-
-onmessage = (event) => {
-  const message = event.data.pluginMessage;
-
-  if (!message) { return; }
-
-  if (message.name === 'headerAction') {
-    if (message.content === 'Run again') {
-      renderHeader(true, false);
-      renderMain(<Loading />);
-    } else if (message.content === 'Settings') {
-      renderHeader(false, true);
-      renderMain(<Settings />);
+    // Replace current panel with a new one
+    if (pluginMessage.changePanel) {
+      switch (pluginMessage.changePanel.name) {
+        default:
+        case 'loading': setActivePanel(<LoadingPanel />); break;
+        case 'settings': setActivePanel(<SettingsPanel />); break;
+        // case 'success': setActivePanel(<SuccessPanel />); break;
+      }
     }
-  }
 
-  if (message.name === 'contentError') {
-    renderHeader(false, false);
-    renderMain(<ErrorMessage entries={correctErrorArray(message.content)} />);
-  }
+    // Show error message
+    if (pluginMessage.showError) {
+      setActivePanel(<ErrorPanel entries={pluginMessage.showError} />);
+      setRunStatus(false);
+      setSettingsPanel(false);
+    }
 
-  if (message.name === 'exportableAssets') {
-    return new Promise(() => {
-      const zip = new JSZip();
+    // Generate exportable zip
+    if (pluginMessage.exportableAssets) {
+      // eslint-disable-next-line consistent-return
+      return new Promise(() => {
+        const zip = new JSZip();
 
-      message.content.forEach(({ name, svg }) => {
-        zip.file(`${name}.svg`, svg);
+        pluginMessage.exportableAssets.forEach(({ name, svg }) => {
+          zip.file(`${name}.svg`, svg);
+        });
+
+        zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
+          const blobURL = window.URL.createObjectURL(content);
+          const link = document.createElement('a');
+          link.href = blobURL;
+          link.download = 'icons.zip';
+          link.click();
+        }).then(() => {
+          setTimeout(() => {
+            setActivePanel(<SuccessPanel length={pluginMessage.exportableAssets.length} />);
+            setRunStatus(false);
+            setSettingsPanel(false);
+          }, 2000);
+        });
       });
+    }
+  };
 
-      zip.generateAsync({ type: 'blob' }).then((content: Blob) => {
-        const blobURL = window.URL.createObjectURL(content);
-        const link = document.createElement('a');
-        link.href = blobURL;
-        link.download = 'icons.zip';
-        link.click();
-      }).then(() => {
-        setTimeout(() => {
-          renderHeader(false, false);
-          renderMain(<Success length={message.content.length} />);
-        }, 2000);
-      });
-    });
-  }
+  /**
+   * Run plugin again
+   */
+  const runAgain = (): void => {
+    if (!runStatus) {
+      window.parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
+      setRunStatus(true);
+      setSettingsPanel(false);
+    }
+  };
+
+  /**
+   * Open settings panel
+   */
+  const openSettings = (): void => {
+    window.parent.postMessage({ pluginMessage: { requestSettings: true } }, '*');
+    setActivePanel(<SettingsPanel />);
+    setSettingsPanel(true);
+  };
+
+  return (
+    <>
+      <header className={`header ${settingsPanel ? 'header--open' : ''}`}>
+        <div className="header-layout type type--pos-small-bold">
+          <HeaderEntry text="Run again" icon={IconReload} disabled={runStatus} onClick={runAgain} />
+          <HeaderEntry text="Settings" icon={IconSettings} open={settingsPanel} onClick={openSettings} />
+        </div>
+      </header>
+      <main className="main">
+        {activePanel}
+      </main>
+    </>
+  );
 };
+
+ReactDOM.render(<App />, document.getElementById('plugin-ui'));
