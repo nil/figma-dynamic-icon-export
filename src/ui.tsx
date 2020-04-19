@@ -11,6 +11,7 @@ import HeaderEntry from './components/HeaderEntry';
 import IconReload from './assets/reload.svg';
 import IconSettings from './assets/settings.svg';
 
+import './style/figma.css';
 import './style/index.css';
 
 
