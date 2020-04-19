@@ -16,7 +16,7 @@ import './style/index.css';
 
 
 const App = (): JSX.Element => {
-  const [runStatus, setRunStatus] = React.useState(false);
+  const [runStatus, setRunStatus] = React.useState(true);
   const [settingsPanel, setSettingsPanel] = React.useState(false);
   const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
 
