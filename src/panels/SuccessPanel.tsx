@@ -1,4 +1,5 @@
 import * as React from 'react';
+import Button from '../components/Button';
 
 type Props = {
   length: number;
@@ -6,25 +7,15 @@ type Props = {
 
 const SuccessPanel = ({ length }: Props): JSX.Element => {
   const sendMessage = (content): void => {
-    parent.postMessage({ pluginMessage: content }, '*');
+    parent.postMessage({ pluginMessage: { [content]: true } }, '*');
   };
-
-  const button = (text: string, type: string, message): JSX.Element => (
-    <button
-      type="button"
-      className={`button button--${type}`}
-      onClick={(): void => sendMessage(message)}
-    >
-      {text}
-    </button>
-  );
 
   return (
     <div className="success panel">
       <span className="type type--pos-small-normal">{`Successfully exported ${length} icons`}</span>
       <div className="success-buttons">
-        {button('Download again', 'primary', { downloadAgain: true })}
-        {button('Close plugin', 'secondary', { closePlugin: true })}
+        <Button text="Download again" type="primary" onClick={(): void => { sendMessage('downloadAgain'); }} />
+        <Button text="Close plugin" type="secondary" onClick={(): void => { sendMessage('closePlugin'); }} />
       </div>
     </div>
   );
