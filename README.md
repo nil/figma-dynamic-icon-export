@@ -21,6 +21,7 @@ _WIP_
 - [ ] Add option to not have the size explicitly in the icon name
 - [ ] Create components containing the resulting SVG code
 - [ ] Optimize the icon with SVGO before exporting
+- [ ] Hide some layers when exporting
 
 ## Local development
 
