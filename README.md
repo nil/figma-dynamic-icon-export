@@ -22,6 +22,7 @@ _WIP_
 - [ ] Create components containing the resulting SVG code
 - [ ] Optimize the icon with SVGO before exporting
 - [ ] Hide some layers when exporting
+- [ ] Show list of exported icons on the UI
 
 ## Local development
 
