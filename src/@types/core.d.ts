@@ -1,4 +1,3 @@
-// Custom types
 interface ErrorEntry {
   id: string | string[];
   name: string;
