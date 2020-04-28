@@ -33,14 +33,19 @@ const getSvgCode = async (userSettings): Promise<void> => {
 
       // Detach instance
       node.children.forEach((child) => {
-        if (child.type === 'INSTANCE') {
-          detachInstance(child);
+        if (child.type === 'BOOLEAN_OPERATION') {
+          child.children.forEach((grandchild) => {
+            if (grandchild.type === 'INSTANCE') {
+              detachInstance(grandchild);
+            }
+          });
+
+          figma.union([child], node);
         }
       });
 
       // Merge all paths
       figma.union(node.children, node);
-      figma.flatten(node.children, node);
 
       // Resize frame
       node.children.forEach((child) => {
@@ -55,8 +60,7 @@ const getSvgCode = async (userSettings): Promise<void> => {
       const svg = String.fromCharCode.apply(null, new Uint16Array(unit8))
         .replace(/fill="(.*?)"\s?/gmi, '')
         .replace(/clip-rule="(.*?)"\s?/gmi, '')
-        .replace(/<svg(.*)\n/gmi, '$&\t')
-        .replace(/" \/>\n<path( fill-rule="evenodd")? d="/gmi, ' ');
+        .replace(/<svg(.*)\n/gmi, '$&\t');
 
       // Check if there is any clipPath error
       if (clipPathPattern.test(svg)) {
