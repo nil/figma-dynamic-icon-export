@@ -1,4 +1,4 @@
-import cloneFrames from './utils/cloneFrames';
+import cloneNodes from './utils/cloneNodes';
 import detachInstance from './utils/detachInstance';
 import { sendUserSettings, getUserSettings, postMessage } from './utils/utils';
 
@@ -17,14 +17,14 @@ figma.showUI(__html__, { width: 360, height: 207 });
 
 
 /**
- * Get SVG code from the exportable frames
+ * Get SVG code from the exportable nodes
  *
  * @param userSettings - Setting values set by the user or default values
  */
 const getSvgCode = async (userSettings): Promise<void> => {
-  const cloneList: FrameNode[] = cloneFrames(userSettings);
+  const cloneList: AllowedNodes[] = cloneNodes(userSettings);
 
-  // Get SVG code from the frames in cloneList
+  // Get SVG code from the nodes in cloneList
   if (cloneList) {
     cloneList.forEach(async (node) => {
       const originalId = node.getPluginData('originalId');
@@ -47,7 +47,7 @@ const getSvgCode = async (userSettings): Promise<void> => {
       // Merge all paths
       figma.union(node.children, node);
 
-      // Resize frame
+      // Resize node
       node.children.forEach((child) => {
         if (child.type === 'VECTOR') {
           child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };

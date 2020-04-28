@@ -2,54 +2,54 @@ import { postMessage } from './utils';
 
 
 /**
- * Get all frames that start with a specific string
+ * Get all nodes that start with a specific string
  * or a portion of that list if it contains duplicated names
  *
- * @param startMark - String that defines which frames are exportable
+ * @param startMark - String that defines which nodes are exportable
  */
-function findFrames(startMark): FindFrames {
-  const frameList: FrameNode[] = [];
+function findNodes(startMark): FindNodes {
+  const nodeList: AllowedNodes[] = [];
   const nameList: string[] = [];
-  const duplicatedList: FrameNode[][] = [];
+  const duplicatedList: AllowedNodes[][] = [];
 
   figma.currentPage.children.forEach((node) => {
-    if (node.type !== 'FRAME') { return; }
+    if (node.type !== 'FRAME' && node.type !== 'COMPONENT') { return; }
     if (!node.name.startsWith(startMark)) { return; }
 
     if (nameList.includes(node.name)) {
-      const otherNode = frameList.find((frame) => frame.name === node.name);
+      const otherNode = nodeList.find((n) => node.name === n.name);
       duplicatedList.push([node, otherNode]);
     }
 
     nameList.push(node.name);
-    frameList.push(node);
+    nodeList.push(node);
   });
 
   return {
     duplicates: duplicatedList.length > 0,
-    frames: duplicatedList.length > 0 ? duplicatedList : frameList
+    nodes: duplicatedList.length > 0 ? duplicatedList : nodeList
   };
 }
 
 
 /**
- * Clone exportable frames and export results
+ * Clone exportable nodes and export results
  *
  * @param userSettings - Setting values defined by the user
  */
-export default function (userSettings: UserSettings): FrameNode[] | undefined {
+export default function (userSettings: UserSettings): AllowedNodes[] | undefined {
   const { start, end, size } = userSettings;
   const errorNodes: ErrorEntry[] = [];
-  const findFramesResult: FindFrames = findFrames(start);
-  const originalList = findFramesResult.frames;
-  const cloneList: FrameNode[] = [];
+  const findNodesResult: FindNodes = findNodes(start);
+  const originalList = findNodesResult.nodes;
+  const cloneList: AllowedNodes[] = [];
 
-  // Throw error if there are multiple frames with the same name
-  if (findFramesResult.duplicates) {
-    originalList.forEach((frame) => {
+  // Throw error if there are multiple nodes with the same name
+  if (findNodesResult.duplicates) {
+    originalList.forEach((node) => {
       errorNodes.push({
-        id: frame.map((f) => f.id),
-        name: frame[0].name,
+        id: node.map((n) => n.id),
+        name: node[0].name,
         type: 'duplicated name'
       });
     });
@@ -75,7 +75,7 @@ export default function (userSettings: UserSettings): FrameNode[] | undefined {
   });
 
   if (cloneList.length === 0) {
-    postMessage('showError', [{ name: 'No content found', message: `0 frames start with ${start}`, id: 'single' }]);
+    postMessage('showError', [{ name: 'No content found', message: `0 nodes start with ${start}`, id: 'single' }]);
 
     return undefined;
   }

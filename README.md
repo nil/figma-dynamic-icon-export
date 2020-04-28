@@ -18,7 +18,7 @@ Under the hood, this plugin clones every frame that starts with a specific chara
 ## Features roadmap
 
 - [x] Export the same icon on multiple sizes
-- [ ] Export components too
+- [x] Export components too
 - [ ] Add option to not automatically export icons
 - [ ] Add option to not have the size explicitly in the icon name
 - [ ] Create components containing the resulting SVG code

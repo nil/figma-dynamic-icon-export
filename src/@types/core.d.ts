@@ -4,9 +4,11 @@ interface ErrorEntry {
   type: string;
 }
 
-interface FindFrames {
+type AllowedNodes = FrameNode | ComponentNode;
+
+interface FindNodes {
   duplicates: boolean;
-  frames: FrameNode[] | FrameNode[][];
+  nodes: AllowedNodes[] | AllowedNodes[][];
 }
 
 interface UserSettings {
