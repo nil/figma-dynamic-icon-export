@@ -5,14 +5,16 @@
  * @param instance - The instance to be detached
  */
 export default function (instance: InstanceNode): void {
+  const newFrame = figma.createFrame();
+
+  newFrame.resize(instance.width, instance.height);
+  newFrame.rotation = instance.rotation;
+  newFrame.x = instance.x;
+  newFrame.y = instance.y;
+
   instance.children.forEach((child) => {
-    const clone = child.clone();
-
-    // Put the instance on the correct position
-    clone.x = child.x + instance.x;
-    clone.y = child.y + instance.y;
-
-    instance.parent.appendChild(clone);
+    newFrame.appendChild(child.clone());
+    instance.parent.insertChild(0, newFrame);
   });
 
   instance.remove();
