@@ -27,6 +27,7 @@ Under the hood, this plugin clones every frame that starts with a specific chara
 - [ ] Show list of exported icons on the UI
 - [ ] Export only a few of the icons
 - [ ] Only have size folder when there are multiple sizes
+- [ ] Add a more user-friendly to use the plugin
 
 ## Local development
 
