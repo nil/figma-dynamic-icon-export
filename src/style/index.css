@@ -125,6 +125,17 @@ body {
 }
 
 
+.selection {
+  &-node {
+    padding: 4px 0;
+
+    &-text {
+      margin-left: 8px;
+    }
+  }
+}
+
+
 .error {
   &-entry {
     display: flex;

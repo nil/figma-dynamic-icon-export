@@ -18,7 +18,7 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   });
 
   return (
-    <div className="success panel">
+    <div className="selection">
       {realNodes.map((node) => (
         <NodeCheckbox
           node={node}

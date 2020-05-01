@@ -7,23 +7,26 @@ type Props = {
 };
 
 const NodeCheckbox = ({ node }: Props): JSX.Element => {
+  const [checkboxStatus, setCheckboxStatus] = React.useState(node.status);
+
   const updateExportableList = (selected: NodeEntry): void => {
-    console.log(selected.name);
+    setCheckboxStatus(!checkboxStatus);
 
 
     // parent.postMessage({ pluginMessage: { [content]: true } }, '*');
   };
 
   return (
-    <div className={`selection-node selection-node--${node.status ? 'active' : ''}`}>
+    <div className={`selection-node ${checkboxStatus ? 'selection-node--active' : ''}`}>
       <input
         className="selection-node-checkbox"
-        onClick={(): void => { updateExportableList(node); }}
+        onChange={(): void => { updateExportableList(node); }}
+        checked={checkboxStatus}
         type="checkbox"
         aria-label={`Export ${node.name}`}
-        aria-checked={node.status}
+        aria-checked={checkboxStatus}
       />
-      <span className="selecton-node-text">
+      <span className="selection-node-text type type--pos-small-normal">
         {node.name}
       </span>
     </div>
