@@ -1,5 +1,6 @@
 import cloneNodes from './utils/cloneNodes';
 import detachInstance from './utils/detachInstance';
+import getSelection from './utils/getSelection';
 import { sendUserSettings, getUserSettings, postMessage } from './utils/utils';
 
 
@@ -14,13 +15,12 @@ let errorNodesId: string[] = [];
  * Render UI and send current selection
  */
 figma.showUI(__html__, { width: 360, height: 207 });
-console.log(figma.currentPage.selection);
-
-postMessage('currentSelection', figma.currentPage.selection.map((node) => ({ name: node.name, id: node.id, type: node.type })));
+postMessage('currentSelection', getSelection());
 
 figma.on('selectionchange', () => {
-  postMessage('currentSelection', figma.currentPage.selection.map((node) => ({ name: node.name, id: node.id, type: node.type })));
+  postMessage('currentSelection', getSelection());
 });
+
 
 /**
  * Get SVG code from the exportable nodes
