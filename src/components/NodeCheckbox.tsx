@@ -27,13 +27,7 @@ const NodeCheckbox = ({ node }: Props): JSX.Element => {
         aria-label={`Export ${node.name}`}
         aria-checked={node.status}
       />
-      <span
-        className="selecton-node-text"
-        onClick={(): void => { viewNode(node.id); }}
-        role="button"
-        tabIndex={0}
-        aria-label={`View ${node.name}`}
-      >
+      <span className="selecton-node-text">
         {node.name}
       </span>
     </div>
