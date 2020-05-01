@@ -28,8 +28,8 @@ const getSvgCode = async (userSettings): Promise<void> => {
   if (cloneList) {
     cloneList.forEach(async (node) => {
       const originalId = node.getPluginData('originalId');
-      const name = node.getPluginData('name');
-      const size = parseFloat(name.match(/[0-9].(?=\s)/)[0]);
+      const name = node.getPluginData('name').replace(/\s?\/\s?/g, '/');
+      const size = parseFloat(name.match(/[0-9].(?=\/)/)[0]);
 
       // Detach instance
       node.children.forEach((child) => {
