@@ -16,3 +16,10 @@ interface UserSettings {
   end: string;
   size: string;
 }
+
+interface NodeEntry {
+  name: string;
+  id: string;
+  type: string;
+  status: boolean;
+}

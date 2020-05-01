@@ -1,18 +1,26 @@
 import * as React from 'react';
-import NodeName from '../components/NodeName';
+import NodeCheckbox from '../components/NodeCheckbox';
 
 type Props = {
-  nodes;
+  nodes: NodeEntry[];
 };
 
 const SelectionPanel = ({ nodes }: Props): JSX.Element => {
+  const [exportableNodes, setExportableNodes] = React.useState(nodes);
+
   const sendMessage = (content): void => {
     parent.postMessage({ pluginMessage: { [content]: true } }, '*');
   };
 
   return (
     <div className="success panel">
-      {nodes.map((node) => (<NodeName name={node.name} />))}
+      {exportableNodes.map((node) => (
+        <NodeCheckbox
+          node={node}
+          exportableNodes={exportableNodes}
+          setExportableNodes={setExportableNodes}
+        />
+      ))}
     </div>
   );
 };
