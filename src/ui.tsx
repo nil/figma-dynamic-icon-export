@@ -6,6 +6,7 @@ import ErrorPanel from './panels/ErrorPanel';
 import SettingsPanel from './panels/SettingsPanel';
 import LoadingPanel from './panels/LoadingPanel';
 import SuccessPanel from './panels/SuccessPanel';
+import SelectionPanel from './panels/SelectionPanel';
 
 import HeaderEntry from './components/HeaderEntry';
 import IconReload from './assets/reload.svg';
@@ -69,6 +70,10 @@ const App = (): JSX.Element => {
           }, 2000);
         });
       });
+    }
+
+    if (pluginMessage.currentSelection) {
+      setActivePanel(<SelectionPanel nodes={pluginMessage.currentSelection} />);
     }
   };
 

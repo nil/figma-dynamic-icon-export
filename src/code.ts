@@ -11,10 +11,16 @@ let errorNodesId: string[] = [];
 
 
 /**
- * Render UI
+ * Render UI and send current selection
  */
 figma.showUI(__html__, { width: 360, height: 207 });
+console.log(figma.currentPage.selection);
 
+postMessage('currentSelection', figma.currentPage.selection.map((node) => ({ name: node.name, id: node.id, type: node.type })));
+
+figma.on('selectionchange', () => {
+  postMessage('currentSelection', figma.currentPage.selection.map((node) => ({ name: node.name, id: node.id, type: node.type })));
+});
 
 /**
  * Get SVG code from the exportable nodes
@@ -116,7 +122,7 @@ const runPlugin = (): void => {
 /**
  * Run plugin
  */
-runPlugin();
+// runPlugin();
 
 
 /**
