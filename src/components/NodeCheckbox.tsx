@@ -14,10 +14,6 @@ const NodeCheckbox = ({ node }: Props): JSX.Element => {
     // parent.postMessage({ pluginMessage: { [content]: true } }, '*');
   };
 
-  const viewNode = (id: string): void => {
-    parent.postMessage({ pluginMessage: { viewNodes: id } }, '*');
-  };
-
   return (
     <div className={`selection-node selection-node--${node.status ? 'active' : ''}`}>
       <input
