@@ -1,4 +1,6 @@
 import * as React from 'react';
+
+import Header from '../components/Header';
 import NodeCheckbox from '../components/NodeCheckbox';
 
 type Props = {
@@ -7,19 +9,16 @@ type Props = {
 
 const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   const [exportableNodes, setExportableNodes] = React.useState(nodes);
-  const realNodes: NodeEntry[] = [];
+  const [displayNodes, setDisplayNodes] = React.useState(Object.values(nodes).map((node) => node));
 
   const sendMessage = (content): void => {
     parent.postMessage({ pluginMessage: { [content]: true } }, '*');
   };
 
-  Object.values(nodes).forEach((node) => {
-    realNodes.push(node);
-  });
-
   return (
     <div className="selection">
-      {realNodes.map((node) => (
+      <Header search list={exportableNodes} updateList={setDisplayNodes} />
+      {displayNodes.map((node) => (
         <NodeCheckbox
           node={node}
           key={node.id}
