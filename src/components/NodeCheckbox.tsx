@@ -10,16 +10,15 @@ const NodeCheckbox = ({ node, exportableNodes, setExportableNodes }: Props): JSX
   const [checkboxStatus, setCheckboxStatus] = React.useState(node.status);
 
   const updateExportableList = (selected: NodeEntry): void => {
-    setCheckboxStatus(!checkboxStatus);
+    exportableNodes.forEach((entry, index) => {
+      if (entry.id === selected.id) {
+        const updatedList = exportableNodes;
+        updatedList[index].status = !checkboxStatus;
 
-    if (checkboxStatus) {
-      const updatedList = exportableNodes;
-      delete updatedList[selected.id];
-
-      setExportableNodes(updatedList);
-    } else {
-      setExportableNodes({ [selected.id]: selected, ...exportableNodes });
-    }
+        setExportableNodes(updatedList);
+        setCheckboxStatus(!checkboxStatus);
+      }
+    });
   };
 
   return (
