@@ -6,14 +6,20 @@ type Props = {
   setExportableNodes;
 };
 
-const NodeCheckbox = ({ node }: Props): JSX.Element => {
+const NodeCheckbox = ({ node, exportableNodes, setExportableNodes }: Props): JSX.Element => {
   const [checkboxStatus, setCheckboxStatus] = React.useState(node.status);
 
   const updateExportableList = (selected: NodeEntry): void => {
     setCheckboxStatus(!checkboxStatus);
 
+    if (checkboxStatus) {
+      const updatedList = exportableNodes;
+      delete updatedList[selected.id];
 
-    // parent.postMessage({ pluginMessage: { [content]: true } }, '*');
+      setExportableNodes(updatedList);
+    } else {
+      setExportableNodes({ [selected.id]: selected, ...exportableNodes });
+    }
   };
 
   return (
