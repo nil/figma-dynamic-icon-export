@@ -15,10 +15,10 @@ let errorNodesId: string[] = [];
  * Render UI and send current selection
  */
 figma.showUI(__html__, { width: 360, height: 207 });
-postMessage('currentSelection', getSelection());
+postMessage('initialSelection', getSelection());
 
 figma.on('selectionchange', () => {
-  postMessage('currentSelection', getSelection());
+  postMessage('updateSelection', getSelection());
 });
 
 

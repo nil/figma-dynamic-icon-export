@@ -9,16 +9,19 @@ type Props = {
 
 const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   const [exportableNodes, setExportableNodes] = React.useState(nodes);
-  const [displayNodes, setDisplayNodes] = React.useState(Object.values(nodes).map((node) => node));
+  const [searchValue, setSearchValue] = React.useState('');
+  const filteredList = exportableNodes.filter((entry) => entry.name.indexOf(searchValue) !== -1);
 
-  const sendMessage = (content): void => {
-    parent.postMessage({ pluginMessage: { [content]: true } }, '*');
+  window.onmessage = (event): void => {
+    if (event.data.pluginMessage.updateSelection) {
+      setExportableNodes(event.data.pluginMessage.updateSelection);
+    }
   };
 
   return (
     <div className="selection">
-      <Header search list={exportableNodes} updateList={setDisplayNodes} />
-      {displayNodes.map((node) => (
+      <Header searchValue={searchValue} setSearchValue={setSearchValue} />
+      {filteredList.map((node) => (
         <NodeCheckbox
           node={node}
           key={node.id}

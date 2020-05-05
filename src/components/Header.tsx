@@ -1,26 +1,21 @@
 import * as React from 'react';
 
 type Props = {
-  search?: boolean;
+  searchValue?;
+  setSearchValue?;
   settings?: boolean;
   button?: {
     icon: string;
     label: string;
-    onClick: Function;
+    onClick;
   };
-  list?;
-  updateList?;
 };
 
 const HeaderEntry = ({
-  search, settings, button, list, updateList
+  searchValue, setSearchValue, settings, button
 }: Props): JSX.Element => {
-  const [searchValue, setSearchValue] = React.useState('');
-
   const updateSearch = (value): void => {
     setSearchValue(value);
-    updateList(Object.values(list).filter((entry) => entry.name.indexOf(value) !== -1));
-    console.log(list);
   };
 
   const searchLayout = (): JSX.Element => (
@@ -53,7 +48,7 @@ const HeaderEntry = ({
   return (
     <header className={`header ${settings ? 'header--open' : ''}`}>
       <div className="header-layout type type--pos-small-bold">
-        {search ? searchLayout() : null}
+        {setSearchValue ? searchLayout() : null}
         {button ? buttonEntry() : null}
       </div>
     </header>

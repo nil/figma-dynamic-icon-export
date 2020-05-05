@@ -72,8 +72,8 @@ const App = (): JSX.Element => {
       });
     }
 
-    if (pluginMessage.currentSelection) {
-      setActivePanel(<SelectionPanel nodes={pluginMessage.currentSelection} />);
+    if (pluginMessage.initialSelection) {
+      setActivePanel(<SelectionPanel nodes={pluginMessage.initialSelection} />);
     }
   };
 
