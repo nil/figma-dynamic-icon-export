@@ -2,23 +2,20 @@ import * as React from 'react';
 import useAppState from '../utils/appState';
 import IconSettings from '../assets/IconSettings';
 
-type Props = {
-  message?: string;
-  button?: {
-    icon: string;
-    label: string;
-    onClick;
-  };
-};
 
-const Header = ({ message, button }: Props): JSX.Element => {
+const Header = (): JSX.Element => {
   const {
-    searchValue, setSearchValue, headerVisible, settingsStatus, setSettingsStatus
+    searchValue,
+    setSearchValue,
+    headerVisible,
+    headerMessage,
+    settingsStatus,
+    setSettingsStatus
   } = useAppState();
 
   const searchLayout = (): JSX.Element => (
     <>
-      <div className="header-message">{ message }</div>
+      <div className="header-message">{ headerMessage }</div>
       <div className="header-search">
         <label htmlFor="input-f83a" className="header-search-label">S</label>
         <input
@@ -55,7 +52,7 @@ const Header = ({ message, button }: Props): JSX.Element => {
       <header className={`header ${settingsStatus ? 'header--open' : ''}`}>
         <div className="header-layout type type--pos-small-bold">
           {setSearchValue ? searchLayout() : null}
-          {button ? buttonEntry() : null}
+          {/* {button ? buttonEntry() : null} */}
           <button
             type="button"
             className={`header-settings-button ${settingsStatus ? 'header-settings-button--open' : ''}`}

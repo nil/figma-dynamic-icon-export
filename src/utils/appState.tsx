@@ -6,6 +6,7 @@ export function AppStateProvider({ children }): JSX.Element {
   const [exportableNodes, setExportableNodes] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState('');
   const [headerVisible, setHeaderVisible] = React.useState(true);
+  const [headerMessage, setHeaderMessage] = React.useState('');
   const [settingsStatus, setSettingsStatus] = React.useState(false);
 
   const value = {
@@ -15,6 +16,8 @@ export function AppStateProvider({ children }): JSX.Element {
     setSearchValue,
     headerVisible,
     setHeaderVisible,
+    headerMessage,
+    setHeaderMessage,
     settingsStatus,
     setSettingsStatus
   };

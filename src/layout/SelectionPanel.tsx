@@ -8,17 +8,27 @@ type Props = {
 };
 
 const SelectionPanel = ({ nodes }: Props): JSX.Element => {
-  const { exportableNodes, setExportableNodes, searchValue } = useAppState();
+  const {
+    exportableNodes,
+    setExportableNodes,
+    setHeaderMessage,
+    searchValue
+  } = useAppState();
+
   const filteredList = exportableNodes.filter((entry) => entry.name.indexOf(searchValue) !== -1);
 
   window.onmessage = (event): void => {
-    if (event.data.pluginMessage.updateSelection) {
-      setExportableNodes(event.data.pluginMessage.updateSelection);
+    const { updateSelection } = event.data.pluginMessage;
+
+    if (updateSelection) {
+      setExportableNodes(updateSelection);
+      setHeaderMessage(`${updateSelection.length} icons`);
     }
   };
 
   React.useEffect(() => {
     setExportableNodes(nodes);
+    setHeaderMessage(`${nodes.length} icons`);
   }, []);
 
   return (
