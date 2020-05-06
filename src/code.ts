@@ -14,7 +14,7 @@ let errorNodesId: string[] = [];
 /**
  * Render UI and send current selection
  */
-figma.showUI(__html__, { width: 360, height: 207 });
+figma.showUI(__html__, { width: 360, height: 471 });
 postMessage('initialSelection', getSelection());
 
 figma.on('selectionchange', () => {
