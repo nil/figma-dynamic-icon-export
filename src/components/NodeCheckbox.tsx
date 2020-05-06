@@ -1,12 +1,12 @@
 import * as React from 'react';
+import useAppState from '../utils/appState';
 
 type Props = {
   node: NodeEntry;
-  exportableNodes;
-  setExportableNodes;
 };
 
-const NodeCheckbox = ({ node, exportableNodes, setExportableNodes }: Props): JSX.Element => {
+const NodeCheckbox = ({ node }: Props): JSX.Element => {
+  const { exportableNodes, setExportableNodes } = useAppState();
   const [checkboxStatus, setCheckboxStatus] = React.useState(node.status);
 
   const updateExportableList = (selected: NodeEntry): void => {

@@ -1,9 +1,9 @@
 import * as React from 'react';
+import useAppState from '../utils/appState';
 
 type Props = {
-  searchValue?;
-  setSearchValue?;
   settings?: boolean;
+  message?: string;
   button?: {
     icon: string;
     label: string;
@@ -11,16 +11,12 @@ type Props = {
   };
 };
 
-const HeaderEntry = ({
-  searchValue, setSearchValue, settings, button
-}: Props): JSX.Element => {
-  const updateSearch = (value): void => {
-    setSearchValue(value);
-  };
+const HeaderEntry = ({ settings, message, button }: Props): JSX.Element => {
+  const { searchValue, setSearchValue } = useAppState();
 
   const searchLayout = (): JSX.Element => (
     <>
-      <div className="header-message">140 icons</div>
+      <div className="header-message">{ message }</div>
       <div className="header-search">
         <label htmlFor="input-f83a" className="header-search-label">S</label>
         <input
@@ -28,7 +24,7 @@ const HeaderEntry = ({
           id="input-f83a"
           className="header-search-input"
           value={searchValue}
-          onChange={(): void => { updateSearch(event.target.value); }}
+          onChange={(): void => { setSearchValue(event.target.value); }}
         />
       </div>
     </>
@@ -44,6 +40,7 @@ const HeaderEntry = ({
       <span className="header-button-text">{button.label}</span>
     </button>
   );
+
 
   return (
     <header className={`header ${settings ? 'header--open' : ''}`}>

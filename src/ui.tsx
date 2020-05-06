@@ -8,6 +8,7 @@ import LoadingPanel from './panels/LoadingPanel';
 import SuccessPanel from './panels/SuccessPanel';
 import SelectionPanel from './panels/SelectionPanel';
 
+import { AppStateProvider } from './utils/appState';
 import HeaderEntry from './components/HeaderEntry';
 import IconReload from './assets/reload.svg';
 import IconSettings from './assets/settings.svg';
@@ -99,14 +100,10 @@ const App = (): JSX.Element => {
 
   return (
     <>
-      <header className={`header ${settingsPanel ? 'header--open' : ''}`}>
-        <div className="header-layout type type--pos-small-bold">
-          <HeaderEntry text="Run again" icon={IconReload} disabled={runStatus} onClick={runAgain} />
-          <HeaderEntry text="Settings" icon={IconSettings} open={settingsPanel} onClick={openSettings} />
-        </div>
-      </header>
       <main className="main">
-        {activePanel}
+        <AppStateProvider>
+          {activePanel}
+        </AppStateProvider>
       </main>
     </>
   );
