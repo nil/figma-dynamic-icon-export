@@ -1,5 +1,8 @@
+/* eslint-disable jsx-a11y/label-has-associated-control */
 import * as React from 'react';
 import useAppState from '../utils/appState';
+
+import IconSearch from '../assets/IconSearch';
 import IconSettings from '../assets/IconSettings';
 
 
@@ -15,9 +18,11 @@ const Header = (): JSX.Element => {
 
   const searchLayout = (): JSX.Element => (
     <>
-      <div className="header-message">{ headerMessage }</div>
-      <div className="header-search">
-        <label htmlFor="input-f83a" className="header-search-label">S</label>
+      <div className="header-message type type--pos-small-bold">{ headerMessage }</div>
+      <div className="header-search type type--pos-small-normal">
+        <label className="header-search-label">
+          <IconSearch ariaLabel="Search" className="header-search-icon" />
+        </label>
         <input
           type="text"
           id="input-f83a"
@@ -50,17 +55,15 @@ const Header = (): JSX.Element => {
   if (headerVisible) {
     return (
       <header className={`header ${settingsStatus ? 'header--open' : ''}`}>
-        <div className="header-layout type type--pos-small-bold">
-          {setSearchValue ? searchLayout() : null}
-          {/* {button ? buttonEntry() : null} */}
-          <button
-            type="button"
-            className={`header-settings-button ${settingsStatus ? 'header-settings-button--open' : ''}`}
-            onClick={(): void => { updateSettingsStatus(); }}
-          >
-            <IconSettings className="header-settings-icon" aria-hidden width="16" />
-          </button>
-        </div>
+        {setSearchValue ? searchLayout() : null}
+        {/* {button ? buttonEntry() : null} */}
+        <button
+          type="button"
+          className={`header-settings-button ${settingsStatus ? 'header-settings-button--open' : ''}`}
+          onClick={(): void => { updateSettingsStatus(); }}
+        >
+          <IconSettings className="header-settings-icon" aria-hidden />
+        </button>
       </header>
     );
   }
