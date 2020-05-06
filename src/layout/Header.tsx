@@ -27,6 +27,7 @@ const Header = (): JSX.Element => {
           type="text"
           id="input-f83a"
           className="header-search-input"
+          placeholder="Search"
           value={searchValue}
           onChange={(): void => { setSearchValue(event.target.value); }}
         />
