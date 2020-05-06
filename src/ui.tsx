@@ -1,17 +1,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
-
-import ErrorPanel from './panels/ErrorPanel';
-import SettingsPanel from './panels/SettingsPanel';
-import LoadingPanel from './panels/LoadingPanel';
-import SuccessPanel from './panels/SuccessPanel';
-import SelectionPanel from './panels/SelectionPanel';
-
 import { AppStateProvider } from './utils/appState';
-import HeaderEntry from './components/HeaderEntry';
-import IconReload from './assets/reload.svg';
-import IconSettings from './assets/settings.svg';
+
+import ErrorPanel from './layout/ErrorPanel';
+import Header from './layout/Header';
+import SettingsPanel from './layout/SettingsPanel';
+import LoadingPanel from './layout/LoadingPanel';
+import SuccessPanel from './layout/SuccessPanel';
+import SelectionPanel from './layout/SelectionPanel';
 
 import './style/figma.css';
 import './style/index.css';
@@ -99,13 +96,12 @@ const App = (): JSX.Element => {
   };
 
   return (
-    <>
+    <AppStateProvider>
+      <Header />
       <main className="main">
-        <AppStateProvider>
-          {activePanel}
-        </AppStateProvider>
+        {activePanel}
       </main>
-    </>
+    </AppStateProvider>
   );
 };
 

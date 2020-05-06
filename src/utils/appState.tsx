@@ -1,17 +1,22 @@
 import * as React from 'react';
 
-
 const AppStateContext = React.createContext(undefined);
 
 export function AppStateProvider({ children }): JSX.Element {
   const [exportableNodes, setExportableNodes] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState('');
+  const [headerVisible, setHeaderVisible] = React.useState(true);
+  const [settingsStatus, setSettingsStatus] = React.useState(false);
 
   const value = {
     exportableNodes,
     setExportableNodes,
     searchValue,
-    setSearchValue
+    setSearchValue,
+    headerVisible,
+    setHeaderVisible,
+    settingsStatus,
+    setSettingsStatus
   };
 
   return (

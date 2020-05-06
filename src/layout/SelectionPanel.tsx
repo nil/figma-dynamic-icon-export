@@ -1,6 +1,5 @@
 import * as React from 'react';
 
-import Header from '../components/Header';
 import NodeCheckbox from '../components/NodeCheckbox';
 import useAppState from '../utils/appState';
 
@@ -24,7 +23,6 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
 
   return (
     <div className="selection">
-      <Header message={`${exportableNodes.length} icons`} />
       {filteredList.map((node) => (
         <NodeCheckbox
           node={node}
