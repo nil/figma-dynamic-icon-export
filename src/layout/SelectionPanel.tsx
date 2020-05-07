@@ -26,6 +26,14 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   window.onmessage = (event): void => {
     const { updateSelection } = event.data.pluginMessage;
 
+    updateSelection.forEach((entry, index) => {
+      const identicalNode = selectedNodes.filter((e) => e.id === entry.id)[0];
+
+      if (identicalNode) {
+        updateSelection[index].status = identicalNode.status;
+      }
+    });
+
     if (!settingsStatus && updateSelection) {
       setSelectedNodes(updateSelection);
       setHeaderMessage(`${updateSelection.filter((entry) => entry.status).length} icons`);
