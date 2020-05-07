@@ -1,4 +1,5 @@
 import * as React from 'react';
+import LoadingPanel from '../layout/LoadingPanel';
 
 const AppStateContext = React.createContext(undefined);
 
@@ -8,6 +9,8 @@ export function AppStateProvider({ children }): JSX.Element {
   const [headerVisible, setHeaderVisible] = React.useState(true);
   const [headerMessage, setHeaderMessage] = React.useState('');
   const [settingsStatus, setSettingsStatus] = React.useState(false);
+  const [selectionIsEmpty, setSelectionIsEmpty] = React.useState(false);
+  const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
 
   const value = {
     exportableNodes,
@@ -19,7 +22,11 @@ export function AppStateProvider({ children }): JSX.Element {
     headerMessage,
     setHeaderMessage,
     settingsStatus,
-    setSettingsStatus
+    setSettingsStatus,
+    selectionIsEmpty,
+    setSelectionIsEmpty,
+    activePanel,
+    setActivePanel
   };
 
   return (

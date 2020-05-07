@@ -28,7 +28,7 @@ body {
 
 
 .main {
-  height: 152px;
+  height: 416px;
   margin: 48px 8px 8px;
 }
 
@@ -276,5 +276,21 @@ body {
 
       border: var(--header-border);
     }
+  }
+}
+
+.empty {
+  padding-bottom: 17px;
+
+  &-illustration {
+    width: 128px;
+    margin-bottom: 32px;
+  }
+
+  &-message {
+    max-width: 200px;
+
+    white-space: pre-wrap;
+    text-align: center;
   }
 }

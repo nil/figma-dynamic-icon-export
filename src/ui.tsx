@@ -1,8 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
-import { AppStateProvider } from './utils/appState';
+import useAppState, { AppStateProvider } from './utils/appState';
 
+import EmptyPanel from './layout/EmptyPanel';
 import ErrorPanel from './layout/ErrorPanel';
 import Header from './layout/Header';
 import SettingsPanel from './layout/SettingsPanel';
@@ -17,15 +18,22 @@ import './style/index.css';
 const App = (): JSX.Element => {
   const [runStatus, setRunStatus] = React.useState(true);
   const [settingsPanel, setSettingsPanel] = React.useState(false);
-  const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
+
+  const {
+    setSelectionIsEmpty,
+    setHeaderMessage,
+    activePanel,
+    setActivePanel
+  } = useAppState();
 
   /**
    * Recive messages from code.ts
    */
   window.onmessage = async (event): Promise<void> => {
-    const { pluginMessage } = event.data;
+    if (!event.data.pluginMessage) { return; }
 
-    if (!pluginMessage) { return; }
+    const { pluginMessage } = event.data;
+    const userSelection = pluginMessage.initialSelection || pluginMessage.updateSelection;
 
     // Replace current panel with a new one
     if (pluginMessage.changePanel) {
@@ -70,8 +78,16 @@ const App = (): JSX.Element => {
       });
     }
 
-    if (pluginMessage.initialSelection) {
-      setActivePanel(<SelectionPanel nodes={pluginMessage.initialSelection} />);
+    // Render list of selected nodes or an empty state
+    if (userSelection) {
+      if (userSelection.length === 0) {
+        setActivePanel(<EmptyPanel />);
+        setHeaderMessage('0 icons');
+        setSelectionIsEmpty(true);
+      } else {
+        setActivePanel(<SelectionPanel nodes={userSelection} />);
+        setSelectionIsEmpty(false);
+      }
     }
   };
 
@@ -96,13 +112,13 @@ const App = (): JSX.Element => {
   };
 
   return (
-    <AppStateProvider>
+    <>
       <Header />
       <main className="main">
         {activePanel}
       </main>
-    </AppStateProvider>
+    </>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('plugin-ui'));
+ReactDOM.render(<AppStateProvider><App /></AppStateProvider>, document.getElementById('plugin-ui'));
