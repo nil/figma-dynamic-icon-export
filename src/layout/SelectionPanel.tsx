@@ -10,44 +10,42 @@ type Props = {
 
 const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   const {
-    exportableNodes,
-    setExportableNodes,
+    selectedNodes,
+    setSelectedNodes,
     setHeaderMessage,
     searchValue,
     setSearchValue,
     setActivePanel,
-    setSelectionIsEmpty,
     settingsStatus
   } = useAppState();
 
   // Filtered list after search
-  const filteredList = exportableNodes.filter((entry) => entry.name.indexOf(searchValue) !== -1);
+  const filteredList = selectedNodes.filter((entry) => entry.name.indexOf(searchValue) !== -1);
 
   // Listen for message to update selectionList
   window.onmessage = (event): void => {
     const { updateSelection } = event.data.pluginMessage;
 
     if (!settingsStatus && updateSelection) {
-      setExportableNodes(updateSelection);
-      setHeaderMessage(`${updateSelection.length} icons`);
+      setSelectedNodes(updateSelection);
+      setHeaderMessage(`${updateSelection.filter((entry) => entry.status).length} icons`);
 
       if (updateSelection.length === 0) {
         setActivePanel(<EmptyPanel />);
-        setSelectionIsEmpty(true);
         setSearchValue('');
       }
     }
   };
 
-  // Change value of exportableNodes on first render
+  // Change value of selectedNodes on first render
   React.useEffect(() => {
-    setExportableNodes(nodes);
+    setSelectedNodes(nodes);
     setHeaderMessage(`${nodes.length} icons`);
   }, []);
 
   // Render empty state if the search does not return any result
   const panelToShow = (): JSX.Element => {
-    if (exportableNodes.length > 0 && filteredList.length === 0) {
+    if (selectedNodes.length > 0 && filteredList.length === 0) {
       return <EmptyPanel message={'No matches found.\nTry something different.'} />;
     }
 

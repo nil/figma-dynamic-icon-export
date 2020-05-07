@@ -6,19 +6,25 @@ type Props = {
 };
 
 const NodeCheckbox = ({ node }: Props): JSX.Element => {
-  const { exportableNodes, setExportableNodes } = useAppState();
   const [checkboxStatus, setCheckboxStatus] = React.useState(node.status);
+  const {
+    selectedNodes,
+    setSelectedNodes,
+    setHeaderMessage
+  } = useAppState();
 
   const updateExportableList = (selected: NodeEntry): void => {
-    exportableNodes.forEach((entry, index) => {
+    selectedNodes.forEach((entry, index) => {
       if (entry.id === selected.id) {
-        const updatedList = exportableNodes;
+        const updatedList = selectedNodes;
         updatedList[index].status = !checkboxStatus;
 
-        setExportableNodes(updatedList);
+        setSelectedNodes(updatedList);
         setCheckboxStatus(!checkboxStatus);
       }
     });
+
+    setHeaderMessage(`${selectedNodes.filter((entry) => entry.status).length} icons`);
   };
 
   return (
@@ -32,7 +38,7 @@ const NodeCheckbox = ({ node }: Props): JSX.Element => {
         aria-checked={checkboxStatus}
       />
       <span className="selection-node-text type type--pos-small-normal">
-        {node.name}
+        {`${node.name}, ${node.status}`}
       </span>
     </div>
   );

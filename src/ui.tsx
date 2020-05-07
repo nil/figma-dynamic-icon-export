@@ -20,7 +20,6 @@ const App = (): JSX.Element => {
   const [settingsPanel, setSettingsPanel] = React.useState(false);
 
   const {
-    setSelectionIsEmpty,
     setHeaderMessage,
     settingsStatus,
     activePanel,
@@ -84,10 +83,8 @@ const App = (): JSX.Element => {
       if (userSelection.length === 0) {
         setActivePanel(<EmptyPanel />);
         setHeaderMessage('0 icons');
-        setSelectionIsEmpty(true);
       } else {
         setActivePanel(<SelectionPanel nodes={userSelection} />);
-        setSelectionIsEmpty(false);
       }
     }
   };

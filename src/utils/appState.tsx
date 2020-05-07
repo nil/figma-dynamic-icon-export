@@ -4,17 +4,27 @@ import LoadingPanel from '../layout/LoadingPanel';
 const AppStateContext = React.createContext(undefined);
 
 export function AppStateProvider({ children }): JSX.Element {
-  const [exportableNodes, setExportableNodes] = React.useState([]);
+  // Nodes selected by the user
+  const [selectedNodes, setSelectedNodes] = React.useState([]);
+
+  // Value inside the search input
   const [searchValue, setSearchValue] = React.useState('');
+
+  // Whether the header is visible or not
   const [headerVisible, setHeaderVisible] = React.useState(true);
+
+  // The message on the header
   const [headerMessage, setHeaderMessage] = React.useState('');
+
+  // Whether the settings panel is open or not
   const [settingsStatus, setSettingsStatus] = React.useState(false);
-  const [selectionIsEmpty, setSelectionIsEmpty] = React.useState(false);
+
+  // The current panel visisble in the UI
   const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
 
   const value = {
-    exportableNodes,
-    setExportableNodes,
+    selectedNodes,
+    setSelectedNodes,
     searchValue,
     setSearchValue,
     headerVisible,
@@ -23,8 +33,6 @@ export function AppStateProvider({ children }): JSX.Element {
     setHeaderMessage,
     settingsStatus,
     setSettingsStatus,
-    selectionIsEmpty,
-    setSelectionIsEmpty,
     activePanel,
     setActivePanel
   };
