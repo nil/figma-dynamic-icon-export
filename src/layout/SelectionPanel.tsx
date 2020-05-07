@@ -22,7 +22,7 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   // Filtered list after search
   const filteredList = selectedNodes.filter((entry) => entry.name.indexOf(searchValue) !== -1);
 
-  // Listen for message to update selectionList
+  // Listen for message to update UI and selectedNodes
   window.onmessage = (event): void => {
     const { updateSelection } = event.data.pluginMessage;
 
