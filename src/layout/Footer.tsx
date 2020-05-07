@@ -12,7 +12,12 @@ const Footer = (): JSX.Element => {
   } = useAppState();
 
   const createExport = (): void => {
-    console.log(selectedNodes);
+    const exportNodes = {
+      nodes: selectedNodes.filter((node) => node.status).map((node) => node.id),
+      size: sizeValue
+    };
+
+    parent.postMessage({ pluginMessage: { exportNodes } }, '*');
   };
 
   if (footerVisible) {
