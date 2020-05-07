@@ -10,11 +10,17 @@ export function AppStateProvider({ children }): JSX.Element {
   // Value inside the search input
   const [searchValue, setSearchValue] = React.useState('');
 
+  // Value inside the size input
+  const [sizeValue, setSizeValue] = React.useState('');
+
   // Whether the header is visible or not
   const [headerVisible, setHeaderVisible] = React.useState(true);
 
   // The message on the header
   const [headerMessage, setHeaderMessage] = React.useState('');
+
+  // Whether the footer is visible or not
+  const [footerVisible, setFooterVisible] = React.useState(false);
 
   // Whether the settings panel is open or not
   const [settingsStatus, setSettingsStatus] = React.useState(false);
@@ -27,10 +33,14 @@ export function AppStateProvider({ children }): JSX.Element {
     setSelectedNodes,
     searchValue,
     setSearchValue,
+    sizeValue,
+    setSizeValue,
     headerVisible,
     setHeaderVisible,
     headerMessage,
     setHeaderMessage,
+    footerVisible,
+    setFooterVisible,
     settingsStatus,
     setSettingsStatus,
     activePanel,

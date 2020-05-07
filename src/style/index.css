@@ -1,5 +1,5 @@
 :root {
-  --header-border: 1px solid #E5E5E5;
+  --border-style: 1px solid #E5E5E5;
 }
 
 
@@ -56,7 +56,7 @@ body {
   height: 40px;
 
   background-color: #FFFFFF;
-  border-bottom: var(--header-border);
+  border-bottom: var(--border-style);
 
   &-message {
     display: flex;
@@ -65,7 +65,7 @@ body {
     height: 100%;
     padding: 0 16px 1px;
 
-    border-right: var(--header-border);
+    border-right: var(--border-style);
   }
 
   &-search {
@@ -111,7 +111,7 @@ body {
         position: relative;
 
         background-color: #FFFFFF;
-        border-left: var(--header-border);
+        border-left: var(--border-style);
         cursor: default;
 
         &:after {
@@ -140,7 +140,7 @@ body {
       padding: 0 12px 1px;
 
       background-color: #FFFFFF;
-      border-left: var(--header-border);
+      border-left: var(--border-style);
 
       &--open {
         position: relative;
@@ -177,6 +177,50 @@ body {
   }
 }
 
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+
+  width: 100%;
+  height: 64px;
+
+  border-top: var(--border-style);
+
+  &-size {
+    display: flex;
+    align-items: center;
+    flex: 1;
+
+    height: 100%;
+    padding: 17px 16px;
+
+    border-right: var(--border-style);
+
+    &-label {
+      margin: 0 8px 1px 0;
+    }
+
+    &-input {
+      flex: 1;
+
+      height: 30px;
+      padding: 0 8px;
+      margin-bottom: 1px;
+
+      border: var(--border-style);
+      border-radius: 2px;
+
+      font: inherit;
+    }
+  }
+
+  &-button {
+    margin: 0 16px 1px;
+  }
+}
 
 .loading {
   padding-bottom: 18px;
@@ -274,7 +318,7 @@ body {
       width: 88px;
       margin-left: 8px;
 
-      border: var(--header-border);
+      border: var(--border-style);
     }
   }
 }

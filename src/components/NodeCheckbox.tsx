@@ -10,7 +10,8 @@ const NodeCheckbox = ({ node }: Props): JSX.Element => {
   const {
     selectedNodes,
     setSelectedNodes,
-    setHeaderMessage
+    setHeaderMessage,
+    setFooterVisible
   } = useAppState();
 
   const updateExportableList = (selected: NodeEntry): void => {
@@ -26,6 +27,10 @@ const NodeCheckbox = ({ node }: Props): JSX.Element => {
 
     setHeaderMessage(`${selectedNodes.filter((entry) => entry.status).length} icons`);
   };
+
+  React.useEffect(() => {
+    setFooterVisible(true);
+  }, []);
 
   return (
     <div className={`selection-node ${checkboxStatus ? 'selection-node--active' : ''}`}>

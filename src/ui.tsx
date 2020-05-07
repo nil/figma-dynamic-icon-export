@@ -5,6 +5,7 @@ import useAppState, { AppStateProvider } from './utils/appState';
 
 import EmptyPanel from './layout/EmptyPanel';
 import ErrorPanel from './layout/ErrorPanel';
+import Footer from './layout/Footer';
 import Header from './layout/Header';
 import SettingsPanel from './layout/SettingsPanel';
 import LoadingPanel from './layout/LoadingPanel';
@@ -21,6 +22,7 @@ const App = (): JSX.Element => {
 
   const {
     setHeaderMessage,
+    setFooterVisible,
     settingsStatus,
     activePanel,
     setActivePanel
@@ -85,6 +87,7 @@ const App = (): JSX.Element => {
         setHeaderMessage('0 icons');
       } else {
         setActivePanel(<SelectionPanel nodes={userSelection} />);
+        setFooterVisible(true);
       }
     }
   };
@@ -115,6 +118,7 @@ const App = (): JSX.Element => {
       <main className="main">
         {activePanel}
       </main>
+      <Footer />
     </>
   );
 };
