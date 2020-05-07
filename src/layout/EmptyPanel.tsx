@@ -5,7 +5,7 @@ type Props = {
   message?: string;
 };
 
-const ErrorPanel = ({ message }: Props): JSX.Element => (
+const EmptyPanel = ({ message }: Props): JSX.Element => (
   <div className="empty panel">
     <EmptyStateIllustration className="empty-illustration" />
     <div className="empty-message type type--pos-medium-normal">
@@ -14,4 +14,4 @@ const ErrorPanel = ({ message }: Props): JSX.Element => (
   </div>
 );
 
-export default ErrorPanel;
+export default EmptyPanel;
