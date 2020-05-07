@@ -1,16 +1,16 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
+import useAppState, { AppStateProvider } from './utils/appState';
 
-import ErrorPanel from './panels/ErrorPanel';
-import SettingsPanel from './panels/SettingsPanel';
-import LoadingPanel from './panels/LoadingPanel';
-import SuccessPanel from './panels/SuccessPanel';
-import SelectionPanel from './panels/SelectionPanel';
-
-import HeaderEntry from './components/HeaderEntry';
-import IconReload from './assets/reload.svg';
-import IconSettings from './assets/settings.svg';
+import EmptyPanel from './layout/EmptyPanel';
+import ErrorPanel from './layout/ErrorPanel';
+import Footer from './layout/Footer';
+import Header from './layout/Header';
+import SettingsPanel from './layout/SettingsPanel';
+import LoadingPanel from './layout/LoadingPanel';
+import SuccessPanel from './layout/SuccessPanel';
+import SelectionPanel from './layout/SelectionPanel';
 
 import './style/figma.css';
 import './style/index.css';
@@ -19,15 +19,23 @@ import './style/index.css';
 const App = (): JSX.Element => {
   const [runStatus, setRunStatus] = React.useState(true);
   const [settingsPanel, setSettingsPanel] = React.useState(false);
-  const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
+
+  const {
+    setHeaderMessage,
+    setFooterVisible,
+    settingsStatus,
+    activePanel,
+    setActivePanel
+  } = useAppState();
 
   /**
    * Recive messages from code.ts
    */
   window.onmessage = async (event): Promise<void> => {
-    const { pluginMessage } = event.data;
+    if (!event.data.pluginMessage) { return; }
 
-    if (!pluginMessage) { return; }
+    const { pluginMessage } = event.data;
+    const userSelection = pluginMessage.initialSelection || pluginMessage.updateSelection;
 
     // Replace current panel with a new one
     if (pluginMessage.changePanel) {
@@ -72,8 +80,15 @@ const App = (): JSX.Element => {
       });
     }
 
-    if (pluginMessage.currentSelection) {
-      setActivePanel(<SelectionPanel nodes={pluginMessage.currentSelection} />);
+    // Render list of selected nodes or an empty state
+    if (!settingsStatus && userSelection) {
+      if (userSelection.length === 0) {
+        setActivePanel(<EmptyPanel />);
+        setHeaderMessage('0 icons');
+      } else {
+        setActivePanel(<SelectionPanel nodes={userSelection} />);
+        setFooterVisible(true);
+      }
     }
   };
 
@@ -99,17 +114,13 @@ const App = (): JSX.Element => {
 
   return (
     <>
-      <header className={`header ${settingsPanel ? 'header--open' : ''}`}>
-        <div className="header-layout type type--pos-small-bold">
-          <HeaderEntry text="Run again" icon={IconReload} disabled={runStatus} onClick={runAgain} />
-          <HeaderEntry text="Settings" icon={IconSettings} open={settingsPanel} onClick={openSettings} />
-        </div>
-      </header>
+      <Header />
       <main className="main">
         {activePanel}
       </main>
+      <Footer />
     </>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('plugin-ui'));
+ReactDOM.render(<AppStateProvider><App /></AppStateProvider>, document.getElementById('plugin-ui'));
