@@ -43,7 +43,7 @@ const NodeCheckbox = ({ node }: Props): JSX.Element => {
         aria-checked={checkboxStatus}
       />
       <span className="selection-node-text type type--pos-small-normal">
-        {`${node.name}, ${node.status}`}
+        {node.name}
       </span>
     </div>
   );
