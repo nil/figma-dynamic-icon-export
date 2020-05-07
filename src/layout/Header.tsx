@@ -20,12 +20,12 @@ const Header = (): JSX.Element => {
     <>
       <div className="header-message type type--pos-small-bold">{ headerMessage }</div>
       <div className="header-search type type--pos-small-normal">
-        <label className="header-search-label">
+        <label className="header-search-label" htmlFor="input-search">
           <IconSearch ariaLabel="Search" className="header-search-icon" />
         </label>
         <input
           type="text"
-          id="input-f83a"
+          id="input-search"
           className="header-search-input"
           placeholder="Search"
           value={searchValue}
