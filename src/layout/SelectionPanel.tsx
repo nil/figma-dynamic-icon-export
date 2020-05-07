@@ -16,7 +16,8 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
     searchValue,
     setSearchValue,
     setActivePanel,
-    setSelectionIsEmpty
+    setSelectionIsEmpty,
+    settingsStatus
   } = useAppState();
 
   // Filtered list after search
@@ -26,7 +27,7 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   window.onmessage = (event): void => {
     const { updateSelection } = event.data.pluginMessage;
 
-    if (updateSelection) {
+    if (!settingsStatus && updateSelection) {
       setExportableNodes(updateSelection);
       setHeaderMessage(`${updateSelection.length} icons`);
 

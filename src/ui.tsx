@@ -22,6 +22,7 @@ const App = (): JSX.Element => {
   const {
     setSelectionIsEmpty,
     setHeaderMessage,
+    settingsStatus,
     activePanel,
     setActivePanel
   } = useAppState();
@@ -79,7 +80,7 @@ const App = (): JSX.Element => {
     }
 
     // Render list of selected nodes or an empty state
-    if (userSelection) {
+    if (!settingsStatus && userSelection) {
       if (userSelection.length === 0) {
         setActivePanel(<EmptyPanel />);
         setHeaderMessage('0 icons');
