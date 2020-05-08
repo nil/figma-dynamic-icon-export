@@ -2,7 +2,7 @@ import * as React from 'react';
 import useAppState from '../utils/appState';
 
 type Props = {
-  node: NodeEntry;
+  node: SelectedNode;
 };
 
 const NodeCheckbox = ({ node }: Props): JSX.Element => {
@@ -14,8 +14,8 @@ const NodeCheckbox = ({ node }: Props): JSX.Element => {
     setFooterVisible
   } = useAppState();
 
-  const updateExportableList = (selected: NodeEntry): void => {
-    selectedNodes.forEach((entry, index) => {
+  const updateExportableList = (selected: SelectedNode): void => {
+    selectedNodes.forEach((entry: SelectedNode, index: number) => {
       if (entry.id === selected.id) {
         const updatedList = selectedNodes;
         updatedList[index].status = !checkboxStatus;
@@ -25,7 +25,7 @@ const NodeCheckbox = ({ node }: Props): JSX.Element => {
       }
     });
 
-    setHeaderMessage(`${selectedNodes.filter((entry) => entry.status).length} icons`);
+    setHeaderMessage(`${selectedNodes.filter((entry: SelectedNode) => entry.status).length} icons`);
   };
 
   React.useEffect(() => {

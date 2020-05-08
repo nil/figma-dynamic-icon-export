@@ -5,7 +5,7 @@ import NodeCheckbox from '../components/NodeCheckbox';
 import useAppState from '../utils/appState';
 
 type Props = {
-  nodes?: NodeEntry[];
+  nodes?: SelectedNode[];
 };
 
 const SelectionPanel = ({ nodes }: Props): JSX.Element => {
@@ -26,8 +26,8 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   window.onmessage = (event): void => {
     const { updateSelection } = event.data.pluginMessage;
 
-    updateSelection.forEach((entry, index) => {
-      const identicalNode = selectedNodes.filter((e) => e.id === entry.id)[0];
+    updateSelection.forEach((entry: SelectedNode, index: number) => {
+      const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
 
       if (identicalNode) {
         updateSelection[index].status = identicalNode.status;
@@ -36,7 +36,7 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
 
     if (!settingsStatus && updateSelection) {
       setSelectedNodes(updateSelection);
-      setHeaderMessage(`${updateSelection.filter((entry) => entry.status).length} icons`);
+      setHeaderMessage(`${updateSelection.filter((entry: SelectedNode) => entry.status).length} icons`);
 
       if (updateSelection.length === 0) {
         setActivePanel(<EmptyPanel />);

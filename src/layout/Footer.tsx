@@ -13,7 +13,7 @@ const Footer = (): JSX.Element => {
 
   const createExport = (): void => {
     const exportNodes = {
-      nodes: selectedNodes.filter((node) => node.status).map((node) => node.id),
+      nodes: selectedNodes.filter((node: SelectedNode) => node.status).map((node) => node.id),
       size: sizeValue
     };
 

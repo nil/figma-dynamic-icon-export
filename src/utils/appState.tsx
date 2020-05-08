@@ -1,9 +1,13 @@
 import * as React from 'react';
 import LoadingPanel from '../layout/LoadingPanel';
 
+type Props= {
+  children: React.ReactNode | React.ReactNode[];
+};
+
 const AppStateContext = React.createContext(undefined);
 
-export function AppStateProvider({ children }): JSX.Element {
+export function AppStateProvider({ children }: Props): JSX.Element {
   // Nodes selected by the user
   const [selectedNodes, setSelectedNodes] = React.useState([]);
 
@@ -54,6 +58,7 @@ export function AppStateProvider({ children }): JSX.Element {
   );
 }
 
+// eslint-disable-next-line @typescript-eslint/explicit-function-return-type
 const useAppState = () => React.useContext(AppStateContext);
 
 export default useAppState;

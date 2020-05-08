@@ -17,9 +17,10 @@ interface UserSettings {
   size: string;
 }
 
-interface NodeEntry {
+interface SelectedNode {
   name: string;
   id: string;
   type: string;
+  size: number;
   status: boolean;
 }
