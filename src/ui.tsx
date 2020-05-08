@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
 import useAppState, { AppStateProvider } from './utils/appState';
+import modeNumber from './utils/modeNumber';
 
 import EmptyPanel from './layout/EmptyPanel';
 import ErrorPanel from './layout/ErrorPanel';
@@ -25,7 +26,8 @@ const App = (): JSX.Element => {
     setFooterVisible,
     settingsStatus,
     activePanel,
-    setActivePanel
+    setActivePanel,
+    setSizeValue
   } = useAppState();
 
   /**
@@ -87,6 +89,7 @@ const App = (): JSX.Element => {
         setHeaderMessage('0 icons');
       } else {
         setActivePanel(<SelectionPanel nodes={userSelection} />);
+        setSizeValue(`${modeNumber(userSelection.map((node) => node.size))}px`);
         setFooterVisible(true);
       }
     }
