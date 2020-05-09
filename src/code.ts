@@ -6,10 +6,10 @@ import { sendUserSettings, getUserSettings, postMessage } from './utils/utils';
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 
-let exportableAssets: { name: string; svg: string }[] = [];
+let exportAssets: { name: string; svg: string }[] = [];
 let errorNodes: ErrorEntry[] = [];
 let errorNodesId: string[] = [];
-let userSettings = { // TODO: Add type
+let userSettings: UserSettings = {
   size: undefined
 };
 
@@ -46,61 +46,65 @@ figma.on('selectionchange', () => {
  *
  * @param userSettings - Setting values set by the user or default values
  */
-const getSvgCode = async (userSettings): Promise<void> => {
-  const cloneList: AllowedNodes[] = cloneNodes(userSettings);
+const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
+  const cloneList: AllowedNodes[] = cloneNodes(exportNodes.nodes, exportNodes.size);
 
   // Get SVG code from the nodes in cloneList
-  if (cloneList) {
-    cloneList.forEach(async (node) => {
-      const originalId = node.getPluginData('originalId');
-      const name = node.getPluginData('name').replace(/\s?\/\s?/g, '/');
-      const size = parseFloat(name.match(/[0-9].(?=\/)/)[0]);
+  cloneList.forEach(async (node) => {
+    const originalId = node.getPluginData('originalId');
+    const name = node.name.replace(/\s?\/\s?/g, '/');
+    const size = parseFloat(node.getPluginData('size'));
 
-      // Detach instance
-      node.children.forEach((child) => {
-        if (child.type === 'BOOLEAN_OPERATION') {
-          child.children.forEach((grandchild) => {
-            if (grandchild.type === 'INSTANCE') {
-              detachInstance(grandchild);
-            }
-          });
+    // Detach instances
+    node.children.forEach((child) => {
+      if (child.type === 'INSTANCE') {
+        detachInstance(child);
+      }
 
-          figma.union([child], node);
-        }
-      });
+      if (child.type === 'BOOLEAN_OPERATION') {
+        child.children.forEach((grandchild) => {
+          if (grandchild.type === 'INSTANCE') {
+            detachInstance(grandchild);
+          }
+        });
 
-      // Merge all paths
-      figma.union(node.children, node);
-
-      // Resize node
-      node.children.forEach((child) => {
-        if (child.type === 'VECTOR') {
-          child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
-          node.resize(size, size);
-        }
-      });
-
-      // Obtain SVG code
-      const unit8 = await node.exportAsync({ format: 'SVG' });
-      const svg = String.fromCharCode.apply(null, new Uint16Array(unit8))
-        .replace(/fill="(.*?)"\s?/gmi, '')
-        .replace(/clip-rule="(.*?)"\s?/gmi, '')
-        .replace(/<svg(.*)\n/gmi, '$&\t');
-
-      // Check if there is any clipPath error
-      if (clipPathPattern.test(svg)) {
-        if (!errorNodesId.includes(originalId)) {
-          errorNodes.push({ id: originalId, name, type: 'clip-path' });
-        }
-
-        errorNodesId.push(originalId);
-        node.remove();
-      } else {
-        exportableAssets.push({ name, svg });
-        node.remove();
+        figma.union([child], node);
       }
     });
-  }
+
+    // Merge and flatten all paths
+    figma.union(node.children, node);
+    figma.flatten(node.children, node);
+
+
+    // Resize node
+    node.children.forEach((child) => {
+      if (child.type === 'VECTOR') {
+        child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
+        node.resize(size, size);
+      }
+    });
+
+    // Obtain SVG code
+    const unit8 = await node.exportAsync({ format: 'SVG' });
+    const svg = String.fromCharCode.apply(null, new Uint16Array(unit8))
+      .replace(/fill="(.*?)"\s?/gmi, '')
+      .replace(/clip-rule="(.*?)"\s?/gmi, '')
+      .replace(/<svg(.*)\n/gmi, '$&\t');
+
+    // Check if there is any clipPath error
+    if (clipPathPattern.test(svg)) {
+      if (!errorNodesId.includes(originalId)) {
+        errorNodes.push({ id: originalId, name, type: 'clip-path' });
+      }
+
+      errorNodesId.push(originalId);
+      node.remove();
+    } else {
+      exportAssets.push({ name, svg });
+      node.remove();
+    }
+  });
 };
 
 
@@ -110,8 +114,8 @@ const getSvgCode = async (userSettings): Promise<void> => {
 const createExport = (): void => {
   if (errorNodes.length > 0) {
     postMessage('showError', errorNodes);
-  } else if (exportableAssets.length > 0) {
-    postMessage('exportableAssets', exportableAssets);
+  } else if (exportAssets.length > 0) {
+    postMessage('exportAssets', exportAssets);
   }
 };
 
@@ -121,7 +125,7 @@ const createExport = (): void => {
  */
 const runPlugin = (): void => {
   // Empty arrays
-  exportableAssets = [];
+  exportAssets = [];
   errorNodes = [];
   errorNodesId = [];
 
@@ -186,7 +190,8 @@ figma.ui.onmessage = (message): void => {
   }
 
   if (message.exportNodes) {
-    console.log(message.exportNodes);
-    console.log(figma.currentPage.findAll((node) => message.exportNodes.nodes.includes(node.id)));
+    getSvgCode(message.exportNodes).then(() => {
+      // createExport();
+    });
   }
 };
