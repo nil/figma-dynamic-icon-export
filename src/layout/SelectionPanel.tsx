@@ -26,6 +26,8 @@ const SelectionPanel = ({ nodes }: Props): JSX.Element => {
   window.onmessage = (event): void => {
     const { updateSelection } = event.data.pluginMessage;
 
+    if (!updateSelection) { return; }
+
     updateSelection.forEach((entry: SelectedNode, index: number) => {
       const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
 
