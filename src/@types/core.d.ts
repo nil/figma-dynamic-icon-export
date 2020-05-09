@@ -12,8 +12,6 @@ interface FindNodes {
 }
 
 interface UserSettings {
-  start: string;
-  end: string;
   size: string;
 }
 
@@ -23,4 +21,9 @@ interface SelectedNode {
   type: string;
   size: number;
   status: boolean;
+}
+
+interface ExportNodes {
+  nodes: string[];
+  size: string;
 }
