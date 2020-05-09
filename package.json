@@ -28,7 +28,7 @@
     "html-webpack-plugin": "^4.3.0",
     "postcss-loader": "^3.0.0",
     "postcss-nested": "^4.2.1",
-    "style-loader": "^0.23.1",
+    "style-loader": "^1.2.1",
     "ts-loader": "^7.0.3",
     "typescript": "^3.5.3",
     "url-loader": "^2.1.0",
