@@ -12,7 +12,7 @@ const Footer = (): JSX.Element => {
   } = useAppState();
 
   const createExport = (): void => {
-    const exportNodes = {
+    const exportNodes: ExportNodes = {
       nodes: selectedNodes.filter((node: SelectedNode) => node.status).map((node) => node.id),
       size: sizeValue
     };
