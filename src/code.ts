@@ -9,16 +9,35 @@ const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 let exportableAssets: { name: string; svg: string }[] = [];
 let errorNodes: ErrorEntry[] = [];
 let errorNodesId: string[] = [];
+let userSettings = { // TODO: Add type
+  size: undefined
+};
 
 
 /**
- * Render UI and send current selection
+ * Start up the plugin. Show UI and
+ * send user settings and intial selection
  */
 figma.showUI(__html__, { width: 360, height: 471 });
-postMessage('initialSelection', getSelection());
 
+figma.clientStorage.getAsync('userSettings').then((resp): void => {
+  const respSettings = resp || userSettings;
+
+  // Send and save user settings
+  userSettings = respSettings;
+  figma.ui.postMessage({ userSettings: respSettings });
+  figma.clientStorage.setAsync('userSettings', respSettings);
+
+  // Send initial selection
+  figma.ui.postMessage({ initialSelection: getSelection() });
+});
+
+
+/**
+* Send selection when selection changes
+*/
 figma.on('selectionchange', () => {
-  postMessage('updateSelection', getSelection());
+  figma.ui.postMessage({ updateSelection: getSelection() });
 });
 
 
@@ -164,5 +183,10 @@ figma.ui.onmessage = (message): void => {
 
     figma.currentPage.selection = selectedNode;
     figma.viewport.scrollAndZoomIntoView(selectedNode);
+  }
+
+  if (message.exportNodes) {
+    console.log(message.exportNodes);
+    console.log(figma.currentPage.findAll((node) => message.exportNodes.nodes.includes(node.id)));
   }
 };
