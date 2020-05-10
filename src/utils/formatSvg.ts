@@ -15,5 +15,5 @@ export default function (unit8: Uint8Array): string {
       .replace(/path d/gmi, 'path fill-rule="evenodd" d');
   }
 
-  return svg;
+  return svg.replace(/" \/>\n<path d="/gmi, ' ');
 }
