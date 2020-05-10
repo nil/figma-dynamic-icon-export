@@ -57,12 +57,12 @@ const App = (): JSX.Element => {
     }
 
     // Generate exportable zip
-    if (pluginMessage.exportableAssets) {
+    if (pluginMessage.exportAssets) {
       // eslint-disable-next-line consistent-return
       return new Promise(() => {
         const zip = new JSZip();
 
-        pluginMessage.exportableAssets.forEach(({ name, svg }) => {
+        pluginMessage.exportAssets.forEach(({ name, svg }) => {
           zip.file(`${name}.svg`, svg);
         });
 
@@ -74,7 +74,7 @@ const App = (): JSX.Element => {
           link.click();
         }).then(() => {
           setTimeout(() => {
-            setActivePanel(<SuccessPanel length={pluginMessage.exportableAssets.length} />);
+            setActivePanel(<SuccessPanel length={pluginMessage.exportAssets.length} />);
             setRunStatus(false);
             setSettingsPanel(false);
           }, 2000);
@@ -94,6 +94,7 @@ const App = (): JSX.Element => {
       }
     }
   };
+
 
   /**
    * Run plugin again
