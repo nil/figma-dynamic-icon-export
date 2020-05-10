@@ -4,54 +4,15 @@ import EmptyPanel from './EmptyPanel';
 import NodeCheckbox from '../components/NodeCheckbox';
 import useAppState from '../utils/appState';
 
-type Props = {
-  nodes?: SelectedNode[];
-};
 
-const SelectionPanel = ({ nodes }: Props): JSX.Element => {
+const SelectionPanel = (): JSX.Element => {
   const {
     selectedNodes,
-    setSelectedNodes,
-    setHeaderMessage,
-    searchValue,
-    setSearchValue,
-    setActivePanel,
-    settingsStatus
+    searchValue
   } = useAppState();
 
   // Filtered list after search
   const filteredList = selectedNodes.filter((entry) => entry.name.indexOf(searchValue) !== -1);
-
-  // Listen for message to update UI and selectedNodes
-  window.onmessage = (event): void => {
-    const { updateSelection } = event.data.pluginMessage;
-
-    if (!updateSelection) { return; }
-
-    updateSelection.forEach((entry: SelectedNode, index: number) => {
-      const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
-
-      if (identicalNode) {
-        updateSelection[index].status = identicalNode.status;
-      }
-    });
-
-    if (!settingsStatus && updateSelection) {
-      setSelectedNodes(updateSelection);
-      setHeaderMessage(`${updateSelection.filter((entry: SelectedNode) => entry.status).length} icons`);
-
-      if (updateSelection.length === 0) {
-        setActivePanel(<EmptyPanel />);
-        setSearchValue('');
-      }
-    }
-  };
-
-  // Change value of selectedNodes on first render
-  React.useEffect(() => {
-    setSelectedNodes(nodes);
-    setHeaderMessage(`${nodes.length} icons`);
-  }, []);
 
   // Render empty state if the search does not return any result
   const panelToShow = (): JSX.Element => {

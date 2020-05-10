@@ -22,6 +22,9 @@ const App = (): JSX.Element => {
   const [settingsPanel, setSettingsPanel] = React.useState(false);
 
   const {
+    selectedNodes,
+    setSelectedNodes,
+    setSearchValue,
     setHeaderMessage,
     setFooterVisible,
     settingsStatus,
@@ -84,11 +87,24 @@ const App = (): JSX.Element => {
 
     // Render list of selected nodes or an empty state
     if (!settingsStatus && userSelection) {
+      // Copy status to the nodes that where previously unselected
+      userSelection.forEach((entry: SelectedNode, index: number) => {
+        const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
+
+        if (identicalNode) {
+          userSelection[index].status = identicalNode.status;
+        }
+      });
+
+      // Update header, footer, node list and panel
+      setHeaderMessage(`${userSelection.filter((entry: SelectedNode) => entry.status).length} icons`);
+      setSelectedNodes(userSelection);
+
       if (userSelection.length === 0) {
         setActivePanel(<EmptyPanel />);
-        setHeaderMessage('0 icons');
+        setSearchValue('');
       } else {
-        setActivePanel(<SelectionPanel nodes={userSelection} />);
+        setActivePanel(<SelectionPanel />);
         setSizeValue(`${modeNumber(userSelection.map((node) => node.size))}px`);
         setFooterVisible(true);
       }
