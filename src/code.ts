@@ -2,6 +2,7 @@ import cloneNodes from './utils/cloneNodes';
 import detachInstance from './utils/detachInstance';
 import getSelection from './utils/getSelection';
 import { sendUserSettings, getUserSettings, postMessage } from './utils/utils';
+import formatSvg from './utils/formatSvg';
 
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
@@ -62,7 +63,7 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
       }
 
       if (child.type === 'BOOLEAN_OPERATION') {
-        child.children.forEach((grandchild) => {
+        child.children.forEach((grandchild: InstanceNode) => {
           if (grandchild.type === 'INSTANCE') {
             detachInstance(grandchild);
           }
@@ -76,21 +77,15 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
     figma.union(node.children, node);
     figma.flatten(node.children, node);
 
-
     // Resize node
-    node.children.forEach((child) => {
-      if (child.type === 'VECTOR') {
-        child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
-        node.resize(size, size);
-      }
+    node.children.forEach((child: VectorNode) => {
+      child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
+      node.resize(size, size);
     });
 
     // Obtain SVG code
     const unit8 = await node.exportAsync({ format: 'SVG' });
-    const svg = String.fromCharCode.apply(null, new Uint16Array(unit8))
-      .replace(/fill="(.*?)"\s?/gmi, '')
-      .replace(/clip-rule="(.*?)"\s?/gmi, '')
-      .replace(/<svg(.*)\n/gmi, '$&\t');
+    const svg = formatSvg(unit8);
 
     // Check if there is any clipPath error
     if (clipPathPattern.test(svg)) {
@@ -136,8 +131,8 @@ const runPlugin = (): void => {
   // Get setting values and export SVG
   getUserSettings((userSettings) => {
     getSvgCode(userSettings).then(() => {
-      createExport();
-    });
+    createExport();
+  });
   });
 };
 
