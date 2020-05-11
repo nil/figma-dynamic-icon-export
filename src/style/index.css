@@ -28,8 +28,13 @@ body {
 
 
 .main {
-  height: 416px;
-  margin: 48px 8px 8px;
+  height: 464px;
+  padding: 48px 8px 0;
+
+  &--footer {
+    overflow-y: auto;
+    height: 408px;
+  }
 }
 
 
@@ -157,6 +162,7 @@ body {
   }
 }
 
+
 .footer {
   position: fixed;
   bottom: 0;
@@ -201,6 +207,7 @@ body {
     margin: 0 16px 1px;
   }
 }
+
 
 .loading {
   padding-bottom: 18px;
@@ -276,6 +283,7 @@ body {
   }
 }
 
+
 .settings {
   align-items: flex-end;
   padding: 0 104px 2px 0;
@@ -302,6 +310,7 @@ body {
     }
   }
 }
+
 
 .empty {
   padding-bottom: 17px;

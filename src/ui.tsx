@@ -30,7 +30,8 @@ const App = (): JSX.Element => {
     settingsStatus,
     activePanel,
     setActivePanel,
-    setSizeValue
+    setSizeValue,
+    footerVisible
   } = useAppState();
 
   /**
@@ -135,7 +136,7 @@ const App = (): JSX.Element => {
   return (
     <>
       <Header />
-      <main className="main">
+      <main className={`main ${footerVisible ? 'main--footer' : ''}`}>
         {activePanel}
       </main>
       <Footer />
