@@ -11,9 +11,11 @@ const Footer = (): JSX.Element => {
     footerVisible
   } = useAppState();
 
+  const exportNodeList = selectedNodes.filter((node: SelectedNode) => node.status);
+
   const createExport = (): void => {
     const exportNodes: ExportNodes = {
-      nodes: selectedNodes.filter((node: SelectedNode) => node.status).map((node) => node.id),
+      nodes: exportNodeList.map((node) => node.id),
       size: sizeValue
     };
 
@@ -34,14 +36,14 @@ const Footer = (): JSX.Element => {
             onChange={(): void => { setSizeValue(event.target.value); }}
           />
         </div>
-        <div
+        <button
+          type="button"
+          disabled={exportNodeList.length === 0}
           className="footer-button button button--primary"
-          role="button"
-          tabIndex={0}
           onClick={(): void => { createExport(); }}
         >
           Export icons
-        </div>
+        </button>
       </footer>
     );
   }
