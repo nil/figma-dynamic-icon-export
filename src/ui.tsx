@@ -26,7 +26,7 @@ const App = (): JSX.Element => {
     setSearchValue,
     setHeaderMessage,
     setFooterVisible,
-    settingsStatus,
+    setSettingsStatus,
     activePanel,
     setActivePanel,
     setSizeValue,
@@ -91,7 +91,7 @@ const App = (): JSX.Element => {
     }
 
     // Render list of selected nodes or an empty state
-    if (!settingsStatus && userSelection) {
+    if (userSelection) {
       // Copy status to the nodes that where previously unselected
       userSelection.forEach((entry: SelectedNode, index: number) => {
         const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
@@ -107,6 +107,7 @@ const App = (): JSX.Element => {
 
       if (userSelection.length === 0) {
         setActivePanel(<EmptyPanel />);
+        setSettingsStatus(false);
         setSearchValue('');
       } else {
         setActivePanel(<SelectionPanel />);
