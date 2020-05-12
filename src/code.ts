@@ -5,10 +5,10 @@ import formatSvg from './utils/formatSvg';
 
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
-const exportAssets: { name: string; svg: string }[] = [];
-const errorNodes: ErrorEntry[] = [];
-const errorNodesId: string[] = [];
 
+let exportAssets: { name: string; svg: string }[] = [];
+let errorNodes: ErrorEntry[] = [];
+let errorNodesId: string[] = [];
 let userSettings: UserSettings = {
   size: undefined,
   sizeExplicit: false,
@@ -50,13 +50,36 @@ figma.on('selectionchange', () => {
  * @param userSettings - Setting values set by the user or default values
  */
 const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
-  const cloneList: AllowedNodes[] = cloneNodes(exportNodes.nodes, exportNodes.size);
+  const sizeList: string[] = [...new Set(exportNodes.size.replace(/(?:[^\d.,])/g, '').split(','))];
+  const cloneList: AllowedNodes[] = cloneNodes(exportNodes.nodes, sizeList);
+
+  // Reset lists
+  exportAssets = [];
+  errorNodes = [];
+  errorNodesId = [];
 
   // Get SVG code from the nodes in cloneList
   cloneList.forEach(async (node) => {
     const originalId = node.getPluginData('originalId');
-    const name = node.name.replace(/\s?\/\s?/g, '/');
     const size = parseFloat(node.getPluginData('size'));
+
+    let name = node.name.replace(/\s?\/\s?/g, '/');
+
+    // Apply name to node
+    if (userSettings.sizeExplicit || sizeList.length > 1) {
+      switch (userSettings.sizeName) {
+        default:
+        case 'beginning':
+          name = `${size}/${name}`;
+          break;
+        case 'end':
+          name = `${name}/${size}`;
+          break;
+        case 'appendix':
+          name = `${name}-${size}`;
+          break;
+      }
+    }
 
     // Detach instances
     node.children.forEach((child) => {
@@ -134,6 +157,7 @@ figma.ui.onmessage = (message): void => {
   // Update settings value
   if (message.userSettings) {
     figma.clientStorage.setAsync('userSettings', message.userSettings);
+    userSettings = message.userSettings;
   }
 
   // Send svg code to the UI to be exported
