@@ -3,7 +3,7 @@
  * are not allowed, and return a list of formatted values.
  */
 export default function (): object {
-  const nodeList = [];
+  const nodeList: SelectedNode[] = [];
   const { selection } = figma.currentPage;
 
   selection.forEach((node) => {
@@ -12,6 +12,7 @@ export default function (): object {
         name: node.name,
         id: node.id,
         type: node.type,
+        size: node.width,
         status: true
       });
     }

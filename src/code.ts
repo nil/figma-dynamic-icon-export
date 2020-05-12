@@ -1,24 +1,46 @@
 import cloneNodes from './utils/cloneNodes';
 import detachInstance from './utils/detachInstance';
 import getSelection from './utils/getSelection';
-import { sendUserSettings, getUserSettings, postMessage } from './utils/utils';
+import formatSvg from './utils/formatSvg';
 
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
 
-let exportableAssets: { name: string; svg: string }[] = [];
+let exportAssets: { name: string; svg: string }[] = [];
 let errorNodes: ErrorEntry[] = [];
 let errorNodesId: string[] = [];
+let userSettings: UserSettings = {
+  size: undefined,
+  sizeExplicit: false,
+  sizeUnits: false,
+  sizeName: 'beginning'
+};
 
 
 /**
- * Render UI and send current selection
+ * Start up the plugin. Show UI and
+ * send user settings and intial selection
  */
 figma.showUI(__html__, { width: 360, height: 471 });
-postMessage('initialSelection', getSelection());
 
+figma.clientStorage.getAsync('userSettings').then((resp): void => {
+  const respSettings = resp || userSettings;
+
+  // Send and save user settings
+  userSettings = respSettings;
+  figma.ui.postMessage({ userSettings: respSettings });
+  figma.clientStorage.setAsync('userSettings', respSettings);
+
+  // Send initial selection
+  figma.ui.postMessage({ initialSelection: getSelection() });
+});
+
+
+/**
+* Send selection when selection changes
+*/
 figma.on('selectionchange', () => {
-  postMessage('updateSelection', getSelection());
+  figma.ui.postMessage({ updateSelection: getSelection() });
 });
 
 
@@ -27,61 +49,83 @@ figma.on('selectionchange', () => {
  *
  * @param userSettings - Setting values set by the user or default values
  */
-const getSvgCode = async (userSettings): Promise<void> => {
-  const cloneList: AllowedNodes[] = cloneNodes(userSettings);
+const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
+  const sizeList: string[] = [...new Set(exportNodes.size.replace(/(?:[^\d.,])/g, '').split(','))];
+  const cloneList: AllowedNodes[] = cloneNodes(exportNodes.nodes, sizeList);
+
+  // Reset lists
+  exportAssets = [];
+  errorNodes = [];
+  errorNodesId = [];
 
   // Get SVG code from the nodes in cloneList
-  if (cloneList) {
-    cloneList.forEach(async (node) => {
-      const originalId = node.getPluginData('originalId');
-      const name = node.getPluginData('name').replace(/\s?\/\s?/g, '/');
-      const size = parseFloat(name.match(/[0-9].(?=\/)/)[0]);
+  cloneList.forEach(async (node) => {
+    const originalId = node.getPluginData('originalId');
+    const size = parseFloat(node.getPluginData('size'));
+    const sizeUnits: string = userSettings.sizeUnits ? 'px' : '';
 
-      // Detach instance
-      node.children.forEach((child) => {
-        if (child.type === 'BOOLEAN_OPERATION') {
-          child.children.forEach((grandchild) => {
-            if (grandchild.type === 'INSTANCE') {
-              detachInstance(grandchild);
-            }
-          });
+    let name = node.name.replace(/\s?\/\s?/g, '/');
 
-          figma.union([child], node);
-        }
-      });
+    // Apply name to node
+    if (userSettings.sizeExplicit || sizeList.length > 1) {
+      switch (userSettings.sizeName) {
+        default:
+        case 'beginning':
+          name = `${size}${sizeUnits}/${name}`;
+          break;
+        case 'end':
+          name = `${name}/${size}${sizeUnits}`;
+          break;
+        case 'appendix':
+          name = `${name}-${size}${sizeUnits}`;
+          break;
+      }
+    }
 
-      // Merge all paths
-      figma.union(node.children, node);
+    // Detach instances
+    node.children.forEach((child) => {
+      if (child.type === 'INSTANCE') {
+        detachInstance(child);
+      }
 
-      // Resize node
-      node.children.forEach((child) => {
-        if (child.type === 'VECTOR') {
-          child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
-          node.resize(size, size);
-        }
-      });
+      if (child.type === 'BOOLEAN_OPERATION') {
+        child.children.forEach((grandchild: InstanceNode) => {
+          if (grandchild.type === 'INSTANCE') {
+            detachInstance(grandchild);
+          }
+        });
 
-      // Obtain SVG code
-      const unit8 = await node.exportAsync({ format: 'SVG' });
-      const svg = String.fromCharCode.apply(null, new Uint16Array(unit8))
-        .replace(/fill="(.*?)"\s?/gmi, '')
-        .replace(/clip-rule="(.*?)"\s?/gmi, '')
-        .replace(/<svg(.*)\n/gmi, '$&\t');
-
-      // Check if there is any clipPath error
-      if (clipPathPattern.test(svg)) {
-        if (!errorNodesId.includes(originalId)) {
-          errorNodes.push({ id: originalId, name, type: 'clip-path' });
-        }
-
-        errorNodesId.push(originalId);
-        node.remove();
-      } else {
-        exportableAssets.push({ name, svg });
-        node.remove();
+        figma.union([child], node);
       }
     });
-  }
+
+    // Merge and flatten all paths
+    figma.union(node.children, node);
+    figma.flatten(node.children, node);
+
+    // Resize node
+    node.children.forEach((child: VectorNode) => {
+      child.constraints = { horizontal: 'SCALE', vertical: 'SCALE' };
+      node.resize(size, size);
+    });
+
+    // Obtain SVG code
+    const unit8 = await node.exportAsync({ format: 'SVG' });
+    const svg = formatSvg(unit8);
+
+    // Check if there is any clipPath error
+    if (clipPathPattern.test(svg)) {
+      if (!errorNodesId.includes(originalId)) {
+        errorNodes.push({ id: originalId, name, type: 'clip-path' });
+      }
+
+      errorNodesId.push(originalId);
+      node.remove();
+    } else {
+      exportAssets.push({ name, svg });
+      node.remove();
+    }
+  });
 };
 
 
@@ -90,39 +134,11 @@ const getSvgCode = async (userSettings): Promise<void> => {
  */
 const createExport = (): void => {
   if (errorNodes.length > 0) {
-    postMessage('showError', errorNodes);
-  } else if (exportableAssets.length > 0) {
-    postMessage('exportableAssets', exportableAssets);
+    figma.ui.postMessage({ showError: errorNodes });
+  } else if (exportAssets.length > 0) {
+    figma.ui.postMessage({ exportAssets });
   }
 };
-
-
-/**
- * Code to run when the plugin opens or runs again
- */
-const runPlugin = (): void => {
-  // Empty arrays
-  exportableAssets = [];
-  errorNodes = [];
-  errorNodesId = [];
-
-  // Send info to the ui
-  sendUserSettings();
-  postMessage('changePanel', 'loading');
-
-  // Get setting values and export SVG
-  getUserSettings((userSettings) => {
-    getSvgCode(userSettings).then(() => {
-      createExport();
-    });
-  });
-};
-
-
-/**
- * Run plugin
- */
-// runPlugin();
 
 
 /**
@@ -134,11 +150,6 @@ figma.ui.onmessage = (message): void => {
     figma.closePlugin();
   }
 
-  // Run plugin again
-  if (message.runAgain) {
-    runPlugin();
-  }
-
   // Download icons again
   if (message.downloadAgain) {
     createExport();
@@ -147,22 +158,13 @@ figma.ui.onmessage = (message): void => {
   // Update settings value
   if (message.userSettings) {
     figma.clientStorage.setAsync('userSettings', message.userSettings);
+    userSettings = message.userSettings;
   }
 
-  // Send user settings as requested
-  if (message.requestSettings) {
-    figma.clientStorage.getAsync('userSettings').then((value) => {
-      figma.ui.postMessage({ userSettings: value });
+  // Send svg code to the UI to be exported
+  if (message.exportNodes) {
+    getSvgCode(message.exportNodes).then(() => {
+      figma.ui.postMessage({ exportAssets });
     });
-  }
-
-  // Select a list of given nodes
-  if (message.viewNodes) {
-    const idList = message.viewNodes;
-    const idArray = idList.constructor === Array ? idList : [idList];
-    const selectedNode = figma.currentPage.findAll((n) => idArray.includes(n.id));
-
-    figma.currentPage.selection = selectedNode;
-    figma.viewport.scrollAndZoomIntoView(selectedNode);
   }
 };

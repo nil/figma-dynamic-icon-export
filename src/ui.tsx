@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
 import useAppState, { AppStateProvider } from './utils/appState';
+import modeNumber from './utils/modeNumber';
 
 import EmptyPanel from './layout/EmptyPanel';
 import ErrorPanel from './layout/ErrorPanel';
@@ -12,20 +13,26 @@ import LoadingPanel from './layout/LoadingPanel';
 import SuccessPanel from './layout/SuccessPanel';
 import SelectionPanel from './layout/SelectionPanel';
 
-import './style/figma.css';
+import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 import './style/index.css';
 
 
 const App = (): JSX.Element => {
   const [runStatus, setRunStatus] = React.useState(true);
-  const [settingsPanel, setSettingsPanel] = React.useState(false);
 
   const {
+    selectedNodes,
+    setSelectedNodes,
+    setSearchValue,
     setHeaderMessage,
     setFooterVisible,
     settingsStatus,
     activePanel,
-    setActivePanel
+    setActivePanel,
+    setSizeValue,
+    footerVisible,
+    userSettings,
+    setUserSettings
   } = useAppState();
 
   /**
@@ -51,16 +58,15 @@ const App = (): JSX.Element => {
     if (pluginMessage.showError) {
       setActivePanel(<ErrorPanel entries={pluginMessage.showError} />);
       setRunStatus(false);
-      setSettingsPanel(false);
     }
 
     // Generate exportable zip
-    if (pluginMessage.exportableAssets) {
+    if (pluginMessage.exportAssets) {
       // eslint-disable-next-line consistent-return
       return new Promise(() => {
         const zip = new JSZip();
 
-        pluginMessage.exportableAssets.forEach(({ name, svg }) => {
+        pluginMessage.exportAssets.forEach(({ name, svg }) => {
           zip.file(`${name}.svg`, svg);
         });
 
@@ -72,25 +78,44 @@ const App = (): JSX.Element => {
           link.click();
         }).then(() => {
           setTimeout(() => {
-            setActivePanel(<SuccessPanel length={pluginMessage.exportableAssets.length} />);
+            setActivePanel(<SuccessPanel length={pluginMessage.exportAssets.length} />);
             setRunStatus(false);
-            setSettingsPanel(false);
           }, 2000);
         });
       });
     }
 
+    // Update user settings
+    if (pluginMessage.userSettings) {
+      setUserSettings(pluginMessage.userSettings);
+    }
+
     // Render list of selected nodes or an empty state
     if (!settingsStatus && userSelection) {
+      // Copy status to the nodes that where previously unselected
+      userSelection.forEach((entry: SelectedNode, index: number) => {
+        const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
+
+        if (identicalNode) {
+          userSelection[index].status = identicalNode.status;
+        }
+      });
+
+      // Update header, footer, node list and panel
+      setHeaderMessage(`${userSelection.filter((entry: SelectedNode) => entry.status).length} icons`);
+      setSelectedNodes(userSelection);
+
       if (userSelection.length === 0) {
         setActivePanel(<EmptyPanel />);
-        setHeaderMessage('0 icons');
+        setSearchValue('');
       } else {
-        setActivePanel(<SelectionPanel nodes={userSelection} />);
+        setActivePanel(<SelectionPanel />);
+        setSizeValue(userSettings.size || `${modeNumber(userSelection.map((node) => node.size))}px`);
         setFooterVisible(true);
       }
     }
   };
+
 
   /**
    * Run plugin again
@@ -99,23 +124,13 @@ const App = (): JSX.Element => {
     if (!runStatus) {
       window.parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
       setRunStatus(true);
-      setSettingsPanel(false);
     }
-  };
-
-  /**
-   * Open settings panel
-   */
-  const openSettings = (): void => {
-    window.parent.postMessage({ pluginMessage: { requestSettings: true } }, '*');
-    setActivePanel(<SettingsPanel />);
-    setSettingsPanel(true);
   };
 
   return (
     <>
       <Header />
-      <main className="main">
+      <main className={`main ${footerVisible ? 'main--footer' : ''}`}>
         {activePanel}
       </main>
       <Footer />
