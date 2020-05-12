@@ -1,9 +1,10 @@
 /* eslint-disable react/prop-types */
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import * as React from 'react';
-import { selectMenu } from 'figma-plugin-ds';
+import selectMenu from '../../node_modules/figma-plugin-ds/dist/modules/selectMenu';
 
 import useAppState from '../utils/appState';
+import modeNumber from '../utils/modeNumber';
 
 
 type Props = {
@@ -21,6 +22,7 @@ const Input = ({
   id, type, label, subLabel, options
 }: Props): JSX.Element => {
   const {
+    selectedNodes,
     setSizeValue,
     userSettings,
     setUserSettings
@@ -47,7 +49,11 @@ const Input = ({
     }
 
     if (id === 'size') {
-      setSizeValue(updateValue);
+      if (event.target.value === '') {
+        setSizeValue(`${modeNumber(selectedNodes.map((node) => node.size))}px`);
+      } else {
+        setSizeValue(updateValue);
+      }
     }
 
     setUserSettings(newSettings);
