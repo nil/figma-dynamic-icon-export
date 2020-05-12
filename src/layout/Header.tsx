@@ -34,8 +34,8 @@ const Header = (): JSX.Element => {
   // Layout when a search input should be available
   const searchLayout = (): JSX.Element => (
     <>
-      <div className="header-message type type--pos-small-bold">{ headerMessage }</div>
-      <div className="header-search type type--pos-small-normal">
+      <div className="header-message type--bold">{ headerMessage }</div>
+      <div className="header-search">
         <label className="header-search-label" htmlFor="input-search">
           <IconSearch ariaLabel="Search" className="header-search-icon" />
         </label>
@@ -55,7 +55,7 @@ const Header = (): JSX.Element => {
   const settingsLayout = (): JSX.Element => (
     <button
       type="button"
-      className="header-button type type--pos-small-bold"
+      className="header-button type--bold"
       onClick={(): void => updateSettingsStatus('close')}
     >
       <IconList className="header-button-icon" aria-hidden="true" />

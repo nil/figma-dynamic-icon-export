@@ -13,13 +13,12 @@ import LoadingPanel from './layout/LoadingPanel';
 import SuccessPanel from './layout/SuccessPanel';
 import SelectionPanel from './layout/SelectionPanel';
 
-import './style/figma.css';
+import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 import './style/index.css';
 
 
 const App = (): JSX.Element => {
   const [runStatus, setRunStatus] = React.useState(true);
-  const [settingsPanel, setSettingsPanel] = React.useState(false);
 
   const {
     selectedNodes,
@@ -31,7 +30,9 @@ const App = (): JSX.Element => {
     activePanel,
     setActivePanel,
     setSizeValue,
-    footerVisible
+    footerVisible,
+    userSettings,
+    setUserSettings
   } = useAppState();
 
   /**
@@ -57,7 +58,6 @@ const App = (): JSX.Element => {
     if (pluginMessage.showError) {
       setActivePanel(<ErrorPanel entries={pluginMessage.showError} />);
       setRunStatus(false);
-      setSettingsPanel(false);
     }
 
     // Generate exportable zip
@@ -80,10 +80,14 @@ const App = (): JSX.Element => {
           setTimeout(() => {
             setActivePanel(<SuccessPanel length={pluginMessage.exportAssets.length} />);
             setRunStatus(false);
-            setSettingsPanel(false);
           }, 2000);
         });
       });
+    }
+
+    // Update user settings
+    if (pluginMessage.userSettings) {
+      setUserSettings(pluginMessage.userSettings);
     }
 
     // Render list of selected nodes or an empty state
@@ -106,7 +110,7 @@ const App = (): JSX.Element => {
         setSearchValue('');
       } else {
         setActivePanel(<SelectionPanel />);
-        setSizeValue(`${modeNumber(userSelection.map((node) => node.size))}px`);
+        setSizeValue(userSettings.size || `${modeNumber(userSelection.map((node) => node.size))}px`);
         setFooterVisible(true);
       }
     }
@@ -120,17 +124,7 @@ const App = (): JSX.Element => {
     if (!runStatus) {
       window.parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
       setRunStatus(true);
-      setSettingsPanel(false);
     }
-  };
-
-  /**
-   * Open settings panel
-   */
-  const openSettings = (): void => {
-    window.parent.postMessage({ pluginMessage: { requestSettings: true } }, '*');
-    setActivePanel(<SettingsPanel />);
-    setSettingsPanel(true);
   };
 
   return (

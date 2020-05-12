@@ -1,17 +1,19 @@
 import cloneNodes from './utils/cloneNodes';
 import detachInstance from './utils/detachInstance';
 import getSelection from './utils/getSelection';
-import { sendUserSettings, getUserSettings, postMessage } from './utils/utils';
 import formatSvg from './utils/formatSvg';
 
 
 const clipPathPattern = new RegExp(/clip(-?)path/, 'gim');
+const exportAssets: { name: string; svg: string }[] = [];
+const errorNodes: ErrorEntry[] = [];
+const errorNodesId: string[] = [];
 
-let exportAssets: { name: string; svg: string }[] = [];
-let errorNodes: ErrorEntry[] = [];
-let errorNodesId: string[] = [];
 let userSettings: UserSettings = {
-  size: undefined
+  size: undefined,
+  sizeExplicit: false,
+  sizeUnits: false,
+  sizeName: 'beginning'
 };
 
 
@@ -108,39 +110,11 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
  */
 const createExport = (): void => {
   if (errorNodes.length > 0) {
-    postMessage('showError', errorNodes);
+    figma.ui.postMessage({ showError: errorNodes });
   } else if (exportAssets.length > 0) {
-    postMessage('exportAssets', exportAssets);
+    figma.ui.postMessage({ exportAssets });
   }
 };
-
-
-/**
- * Code to run when the plugin opens or runs again
- */
-const runPlugin = (): void => {
-  // Empty arrays
-  exportAssets = [];
-  errorNodes = [];
-  errorNodesId = [];
-
-  // Send info to the ui
-  sendUserSettings();
-  postMessage('changePanel', 'loading');
-
-  // Get setting values and export SVG
-  getUserSettings((userSettings) => {
-    getSvgCode(userSettings).then(() => {
-    createExport();
-  });
-  });
-};
-
-
-/**
- * Run plugin
- */
-// runPlugin();
 
 
 /**
@@ -150,11 +124,6 @@ figma.ui.onmessage = (message): void => {
   // Close plugin
   if (message.closePlugin) {
     figma.closePlugin();
-  }
-
-  // Run plugin again
-  if (message.runAgain) {
-    runPlugin();
   }
 
   // Download icons again
@@ -167,26 +136,10 @@ figma.ui.onmessage = (message): void => {
     figma.clientStorage.setAsync('userSettings', message.userSettings);
   }
 
-  // Send user settings as requested
-  if (message.requestSettings) {
-    figma.clientStorage.getAsync('userSettings').then((value) => {
-      figma.ui.postMessage({ userSettings: value });
-    });
-  }
-
-  // Select a list of given nodes
-  if (message.viewNodes) {
-    const idList = message.viewNodes;
-    const idArray = idList.constructor === Array ? idList : [idList];
-    const selectedNode = figma.currentPage.findAll((n) => idArray.includes(n.id));
-
-    figma.currentPage.selection = selectedNode;
-    figma.viewport.scrollAndZoomIntoView(selectedNode);
-  }
-
+  // Send svg code to the UI to be exported
   if (message.exportNodes) {
     getSvgCode(message.exportNodes).then(() => {
-      // createExport();
+      figma.ui.postMessage({ exportAssets });
     });
   }
 };

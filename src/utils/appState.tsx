@@ -1,7 +1,7 @@
 import * as React from 'react';
 import LoadingPanel from '../layout/LoadingPanel';
 
-type Props= {
+type Props = {
   children: React.ReactNode | React.ReactNode[];
 };
 
@@ -32,6 +32,9 @@ export function AppStateProvider({ children }: Props): JSX.Element {
   // The current panel visisble in the UI
   const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
 
+  // The values defiend by the user in the settings
+  const [userSettings, setUserSettings] = React.useState({});
+
   const value = {
     selectedNodes,
     setSelectedNodes,
@@ -48,7 +51,9 @@ export function AppStateProvider({ children }: Props): JSX.Element {
     settingsStatus,
     setSettingsStatus,
     activePanel,
-    setActivePanel
+    setActivePanel,
+    userSettings,
+    setUserSettings
   };
 
   return (

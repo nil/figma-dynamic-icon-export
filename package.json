@@ -9,6 +9,7 @@
   "author": "Nil Vila",
   "license": "MIT",
   "dependencies": {
+    "figma-plugin-ds": "^0.1.2",
     "jszip": "^3.3.0",
     "react": "^16.13.1",
     "react-dom": "^16.13.1"

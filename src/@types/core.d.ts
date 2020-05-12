@@ -8,6 +8,9 @@ type AllowedNodes = FrameNode | ComponentNode;
 
 interface UserSettings {
   size: string;
+  sizeExplicit: boolean;
+  sizeUnits: boolean;
+  sizeName: 'beginning' | 'end' | 'appendix';
 }
 
 interface SelectedNode {

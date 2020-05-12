@@ -25,7 +25,7 @@ const Footer = (): JSX.Element => {
   if (footerVisible) {
     return (
       <footer className="footer">
-        <div className="footer-size type type--pos-small-normal">
+        <div className="footer-size">
           <label className="footer-size-label" htmlFor="input-size">Size</label>
           <input
             id="input-size"
