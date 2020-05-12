@@ -30,6 +30,8 @@ const App = (): JSX.Element => {
     activePanel,
     setActivePanel,
     setSizeValue,
+    userHasUpdatedSize,
+    setUserHasUpdatedSize,
     footerVisible,
     userSettings,
     setUserSettings
@@ -107,12 +109,16 @@ const App = (): JSX.Element => {
 
       if (userSelection.length === 0) {
         setActivePanel(<EmptyPanel />);
-        setSettingsStatus(false);
         setSearchValue('');
+        setSettingsStatus(false);
+        setUserHasUpdatedSize(false);
       } else {
         setActivePanel(<SelectionPanel />);
-        setSizeValue(userSettings.size || `${modeNumber(userSelection.map((node) => node.size))}px`);
         setFooterVisible(true);
+
+        if (!userHasUpdatedSize) {
+          setSizeValue(userSettings.size || `${modeNumber(userSelection.map((node) => node.size))}px`);
+        }
       }
     }
   };

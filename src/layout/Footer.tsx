@@ -8,6 +8,7 @@ const Footer = (): JSX.Element => {
     selectedNodes,
     sizeValue,
     setSizeValue,
+    setUserHasUpdatedSize,
     footerVisible
   } = useAppState();
 
@@ -22,6 +23,11 @@ const Footer = (): JSX.Element => {
     parent.postMessage({ pluginMessage: { exportNodes } }, '*');
   };
 
+  const updateSizeValue = (event): void => {
+    setSizeValue(event.target.value);
+    setUserHasUpdatedSize(true);
+  };
+
   if (footerVisible) {
     return (
       <footer className="footer">
@@ -33,7 +39,7 @@ const Footer = (): JSX.Element => {
             className="footer-size-input"
             placeholder="Choose a size"
             value={sizeValue}
-            onChange={(): void => { setSizeValue(event.target.value); }}
+            onChange={updateSizeValue}
           />
         </div>
         <button

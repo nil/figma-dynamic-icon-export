@@ -17,6 +17,9 @@ export function AppStateProvider({ children }: Props): JSX.Element {
   // Value inside the size input
   const [sizeValue, setSizeValue] = React.useState('');
 
+  // Whether the user has manually changed the value of the size input
+  const [userHasUpdatedSize, setUserHasUpdatedSize] = React.useState('');
+
   // Whether the header is visible or not
   const [headerVisible, setHeaderVisible] = React.useState(true);
 
@@ -42,6 +45,8 @@ export function AppStateProvider({ children }: Props): JSX.Element {
     setSearchValue,
     sizeValue,
     setSizeValue,
+    userHasUpdatedSize,
+    setUserHasUpdatedSize,
     headerVisible,
     setHeaderVisible,
     headerMessage,
