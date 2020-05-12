@@ -62,6 +62,7 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
   cloneList.forEach(async (node) => {
     const originalId = node.getPluginData('originalId');
     const size = parseFloat(node.getPluginData('size'));
+    const sizeUnits: string = userSettings.sizeUnits ? 'px' : '';
 
     let name = node.name.replace(/\s?\/\s?/g, '/');
 
@@ -70,13 +71,13 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
       switch (userSettings.sizeName) {
         default:
         case 'beginning':
-          name = `${size}/${name}`;
+          name = `${size}${sizeUnits}/${name}`;
           break;
         case 'end':
-          name = `${name}/${size}`;
+          name = `${name}/${size}${sizeUnits}`;
           break;
         case 'appendix':
-          name = `${name}-${size}`;
+          name = `${name}-${size}${sizeUnits}`;
           break;
       }
     }
