@@ -164,7 +164,7 @@ figma.ui.onmessage = (message): void => {
   // Send svg code to the UI to be exported
   if (message.exportNodes) {
     getSvgCode(message.exportNodes).then(() => {
-      figma.ui.postMessage({ exportAssets });
+      createExport();
     });
   }
 };
