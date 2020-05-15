@@ -1,15 +1,20 @@
 /* eslint-disable jsx-a11y/label-has-associated-control */
 import * as React from 'react';
 import useAppState from '../utils/appState';
+import FooterButton from '../components/FooterButton';
+import SelectionPanel from './SelectionPanel';
 
 
 const Footer = (): JSX.Element => {
   const {
     selectedNodes,
+    errorNodes,
+    setErrorNodes,
     sizeValue,
     setSizeValue,
     setUserHasUpdatedSize,
-    footerVisible
+    footerVisible,
+    setActivePanel
   } = useAppState();
 
   const exportNodeList = selectedNodes.filter((node: SelectedNode) => node.status);
@@ -21,11 +26,27 @@ const Footer = (): JSX.Element => {
     };
 
     parent.postMessage({ pluginMessage: { exportNodes } }, '*');
+    setErrorNodes([]);
+  };
+
+  const tryAgain = (): void => {
+    setErrorNodes([]);
+    setActivePanel(<SelectionPanel />);
+
+    parent.postMessage({ pluginMessage: { getSelection: true } }, '*');
   };
 
   const updateSizeValue = (event): void => {
     setSizeValue(event.target.value);
     setUserHasUpdatedSize(true);
+  };
+
+  const actionButton = (): JSX.Element => {
+    if (errorNodes.length > 0) {
+      return <FooterButton text="Try again" onClick={tryAgain} disabled={exportNodeList.length === 0} />;
+    }
+
+    return <FooterButton text="Export icons" onClick={createExport} />;
   };
 
   if (footerVisible) {
@@ -42,14 +63,7 @@ const Footer = (): JSX.Element => {
             onChange={updateSizeValue}
           />
         </div>
-        <button
-          type="button"
-          disabled={exportNodeList.length === 0}
-          className="footer-button button button--primary"
-          onClick={(): void => { createExport(); }}
-        >
-          Export icons
-        </button>
+        {actionButton()}
       </footer>
     );
   }

@@ -150,6 +150,11 @@ figma.ui.onmessage = (message): void => {
     figma.closePlugin();
   }
 
+  // Send current selection
+  if (message.getSelection) {
+    figma.ui.postMessage({ updateSelection: getSelection() });
+  }
+
   // Download icons again
   if (message.downloadAgain) {
     createExport();
