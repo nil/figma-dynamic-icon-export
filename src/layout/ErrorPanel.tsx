@@ -1,17 +1,14 @@
 import * as React from 'react';
 import ErrorEntry from '../components/ErrorEntry';
+import useAppState from '../utils/appState';
 
-type Props = {
-  entries: ErrorEntry[] | {
-    name: string;
-    message: string;
-    id: string;
-    map;
-  };
-};
 
-const ErrorPanel = ({ entries }: Props): JSX.Element => {
-  const errorEntries = entries.map((entry) => (
+const ErrorPanel = (): JSX.Element => {
+  const {
+    errorNodes
+  } = useAppState();
+
+  const errorEntries = errorNodes.map((entry) => (
     <ErrorEntry
       key={entry.id}
       type={entry.type}

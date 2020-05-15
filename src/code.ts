@@ -134,7 +134,7 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
  */
 const createExport = (): void => {
   if (errorNodes.length > 0) {
-    figma.ui.postMessage({ showError: errorNodes });
+    figma.ui.postMessage({ errorNodes });
   } else if (exportAssets.length > 0) {
     figma.ui.postMessage({ exportAssets });
   }
@@ -166,5 +166,13 @@ figma.ui.onmessage = (message): void => {
     getSvgCode(message.exportNodes).then(() => {
       createExport();
     });
+  }
+
+  // Select a node based on its id
+  if (message.viewNode) {
+    const selectedNode = figma.currentPage.findAll((n) => n.id === message.viewNode);
+
+    figma.currentPage.selection = selectedNode;
+    figma.viewport.scrollAndZoomIntoView(selectedNode);
   }
 };

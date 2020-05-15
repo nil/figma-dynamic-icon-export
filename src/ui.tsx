@@ -23,6 +23,8 @@ const App = (): JSX.Element => {
   const {
     selectedNodes,
     setSelectedNodes,
+    errorNodes,
+    setErrorNodes,
     setSearchValue,
     setHeaderMessage,
     setFooterVisible,
@@ -46,22 +48,6 @@ const App = (): JSX.Element => {
     const { pluginMessage } = event.data;
     const userSelection = pluginMessage.initialSelection || pluginMessage.updateSelection;
 
-    // Replace current panel with a new one
-    if (pluginMessage.changePanel) {
-      switch (pluginMessage.changePanel.name) {
-        default:
-        case 'loading': setActivePanel(<LoadingPanel />); break;
-        case 'settings': setActivePanel(<SettingsPanel />); break;
-        // case 'success': setActivePanel(<SuccessPanel />); break;
-      }
-    }
-
-    // Show error message
-    if (pluginMessage.showError) {
-      setActivePanel(<ErrorPanel entries={pluginMessage.showError} />);
-      setRunStatus(false);
-    }
-
     // Generate exportable zip
     if (pluginMessage.exportAssets) {
       // eslint-disable-next-line consistent-return
@@ -77,14 +63,23 @@ const App = (): JSX.Element => {
           const link = document.createElement('a');
           link.href = blobURL;
           link.download = 'icons.zip';
-          link.click();
+          // link.click();
         }).then(() => {
-          setTimeout(() => {
-            setActivePanel(<SuccessPanel length={pluginMessage.exportAssets.length} />);
-            setRunStatus(false);
-          }, 2000);
+          // setTimeout(() => {
+          //   setActivePanel(<SuccessPanel length={pluginMessage.exportAssets.length} />);
+          //   setRunStatus(false);
+          // }, 2000);
         });
       });
+    }
+
+    // Show error message
+    if (pluginMessage.errorNodes) {
+      const { length } = pluginMessage.errorNodes;
+
+      setActivePanel(<ErrorPanel />);
+      setErrorNodes(pluginMessage.errorNodes);
+      setHeaderMessage(`${length} error${length > 1 ? 's' : ''}`);
     }
 
     // Update user settings
@@ -93,7 +88,7 @@ const App = (): JSX.Element => {
     }
 
     // Render list of selected nodes or an empty state
-    if (userSelection) {
+    if (userSelection && errorNodes.length === 0) {
       // Copy status to the nodes that where previously unselected
       userSelection.forEach((entry: SelectedNode, index: number) => {
         const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
@@ -104,7 +99,9 @@ const App = (): JSX.Element => {
       });
 
       // Update header, footer, node list and panel
-      setHeaderMessage(`${userSelection.filter((entry: SelectedNode) => entry.status).length} icons`);
+      const { length } = userSelection.filter((entry: SelectedNode) => entry.status);
+
+      setHeaderMessage(`${length} icon${length > 1 || length === 0 ? 's' : ''}`);
       setSelectedNodes(userSelection);
 
       if (userSelection.length === 0) {
@@ -123,16 +120,6 @@ const App = (): JSX.Element => {
     }
   };
 
-
-  /**
-   * Run plugin again
-   */
-  const runAgain = (): void => {
-    if (!runStatus) {
-      window.parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
-      setRunStatus(true);
-    }
-  };
 
   return (
     <>
