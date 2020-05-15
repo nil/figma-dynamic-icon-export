@@ -52,17 +52,19 @@ const Footer = (): JSX.Element => {
   if (footerVisible) {
     return (
       <footer className="footer">
-        <div className="footer-size">
-          <label className="footer-size-label" htmlFor="input-size">Size</label>
-          <input
-            id="input-size"
-            type="text"
-            className="footer-size-input"
-            placeholder="Choose a size"
-            value={sizeValue}
-            onChange={updateSizeValue}
-          />
-        </div>
+        {errorNodes.length === 0 ? (
+          <div className="footer-size">
+            <label className="footer-size-label" htmlFor="input-size">Size</label>
+            <input
+              id="input-size"
+              type="text"
+              className="footer-size-input"
+              placeholder="Choose a size"
+              value={sizeValue}
+              onChange={updateSizeValue}
+            />
+          </div>
+        ) : null}
         {actionButton()}
       </footer>
     );
