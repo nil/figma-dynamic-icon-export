@@ -1,5 +1,4 @@
 import * as React from 'react';
-import LoadingPanel from '../layout/LoadingPanel';
 
 type Props = {
   children: React.ReactNode | React.ReactNode[];
@@ -10,6 +9,9 @@ const AppStateContext = React.createContext(undefined);
 export function AppStateProvider({ children }: Props): JSX.Element {
   // Nodes selected by the user
   const [selectedNodes, setSelectedNodes] = React.useState([]);
+
+  // Nodes that return some error
+  const [errorNodes, setErrorNodes] = React.useState([]);
 
   // Value inside the search input
   const [searchValue, setSearchValue] = React.useState('');
@@ -33,7 +35,7 @@ export function AppStateProvider({ children }: Props): JSX.Element {
   const [settingsStatus, setSettingsStatus] = React.useState(false);
 
   // The current panel visisble in the UI
-  const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
+  const [activePanel, setActivePanel] = React.useState(undefined);
 
   // The values defiend by the user in the settings
   const [userSettings, setUserSettings] = React.useState({});
@@ -41,6 +43,8 @@ export function AppStateProvider({ children }: Props): JSX.Element {
   const value = {
     selectedNodes,
     setSelectedNodes,
+    errorNodes,
+    setErrorNodes,
     searchValue,
     setSearchValue,
     sizeValue,

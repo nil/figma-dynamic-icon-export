@@ -1,62 +1,32 @@
 import * as React from 'react';
-import IconError from '../assets/error.svg';
+import IconError from '../assets/IconError';
 
 type Props = {
-  type?: string;
-  message?: string;
+  type: string;
   name: string;
   id: string;
 };
 
-const ErrorEntry = ({
-  type, message, name, id
-}: Props): JSX.Element => {
-  const viewNode = (idList: string | string[]): void => {
-    parent.postMessage({ pluginMessage: { viewNodes: idList } }, '*');
+const ErrorEntry = ({ type, name, id }: Props): JSX.Element => {
+  const viewNode = (): void => {
+    parent.postMessage({ pluginMessage: { viewNode: id } }, '*');
   };
-
-  const errorNameClass = 'error-name type type--pos-large-bold';
-
-  let errorContext;
-  let errorName;
-
-  if (type) {
-    errorContext = (
-      <>
-        <span className="error-notify">Error type: </span>
-        <span className="error-type">{type}</span>
-      </>
-    );
-
-    errorName = (
-      <div
-        className={errorNameClass}
-        onClick={(): void => viewNode(id)}
-        role="link"
-        tabIndex={0}
-      >
-        {name}
-      </div>
-    );
-  } else if (message) {
-    errorContext = (
-      <>{message}</>
-    );
-
-    errorName = (
-      <div className={errorNameClass}>
-        {name}
-      </div>
-    );
-  }
 
   return (
     <div className="error-entry">
-      <img src={IconError} alt="" aria-hidden="true" className="error-icon" />
+      <IconError className="error-icon" />
       <div className="error-info">
-        {errorName}
+        <div
+          className="error-name type type--large type--bold"
+          onClick={(): void => viewNode()}
+          role="link"
+          tabIndex={0}
+        >
+          {name}
+        </div>
         <div className="error-context type type--pos-small-normal">
-          {errorContext}
+          <span className="error-notify">Error type: </span>
+          <span className="error-type">{type}</span>
         </div>
       </div>
     </div>

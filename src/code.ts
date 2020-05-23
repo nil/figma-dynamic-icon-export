@@ -60,8 +60,9 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
 
   // Get SVG code from the nodes in cloneList
   cloneList.forEach(async (node) => {
-    const originalId = node.getPluginData('originalId');
-    const size = parseFloat(node.getPluginData('size'));
+    const originalId: string = node.getPluginData('originalId');
+    const originalName: string = node.name;
+    const size: number = parseFloat(node.getPluginData('size'));
     const sizeUnits: string = userSettings.sizeUnits ? 'px' : '';
 
     let name = node.name.replace(/\s?\/\s?/g, '/');
@@ -116,7 +117,7 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
     // Check if there is any clipPath error
     if (clipPathPattern.test(svg)) {
       if (!errorNodesId.includes(originalId)) {
-        errorNodes.push({ id: originalId, name, type: 'clip-path' });
+        errorNodes.push({ id: originalId, name: originalName, type: 'clip-path' });
       }
 
       errorNodesId.push(originalId);
@@ -134,7 +135,7 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
  */
 const createExport = (): void => {
   if (errorNodes.length > 0) {
-    figma.ui.postMessage({ showError: errorNodes });
+    figma.ui.postMessage({ errorNodes });
   } else if (exportAssets.length > 0) {
     figma.ui.postMessage({ exportAssets });
   }
@@ -148,6 +149,11 @@ figma.ui.onmessage = (message): void => {
   // Close plugin
   if (message.closePlugin) {
     figma.closePlugin();
+  }
+
+  // Send current selection
+  if (message.getSelection) {
+    figma.ui.postMessage({ updateSelection: getSelection() });
   }
 
   // Download icons again
@@ -164,7 +170,15 @@ figma.ui.onmessage = (message): void => {
   // Send svg code to the UI to be exported
   if (message.exportNodes) {
     getSvgCode(message.exportNodes).then(() => {
-      figma.ui.postMessage({ exportAssets });
+      createExport();
     });
+  }
+
+  // Select a node based on its id
+  if (message.viewNode) {
+    const selectedNode = figma.currentPage.findAll((n) => n.id === message.viewNode);
+
+    figma.currentPage.selection = selectedNode;
+    figma.viewport.scrollAndZoomIntoView(selectedNode);
   }
 };
