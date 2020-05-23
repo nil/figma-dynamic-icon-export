@@ -12,7 +12,6 @@ const ErrorPanel = (): JSX.Element => {
     <ErrorEntry
       key={entry.id}
       type={entry.type}
-      message={entry.message}
       name={entry.name}
       id={entry.id}
     />

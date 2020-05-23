@@ -60,8 +60,9 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
 
   // Get SVG code from the nodes in cloneList
   cloneList.forEach(async (node) => {
-    const originalId = node.getPluginData('originalId');
-    const size = parseFloat(node.getPluginData('size'));
+    const originalId: string = node.getPluginData('originalId');
+    const originalName: string = node.name;
+    const size: number = parseFloat(node.getPluginData('size'));
     const sizeUnits: string = userSettings.sizeUnits ? 'px' : '';
 
     let name = node.name.replace(/\s?\/\s?/g, '/');
@@ -116,7 +117,7 @@ const getSvgCode = async (exportNodes: ExportNodes): Promise<void> => {
     // Check if there is any clipPath error
     if (clipPathPattern.test(svg)) {
       if (!errorNodesId.includes(originalId)) {
-        errorNodes.push({ id: originalId, name, type: 'clip-path' });
+        errorNodes.push({ id: originalId, name: originalName, type: 'clip-path' });
       }
 
       errorNodesId.push(originalId);
