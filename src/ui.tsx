@@ -28,6 +28,7 @@ const App = (): JSX.Element => {
     setSearchValue,
     setHeaderMessage,
     setFooterVisible,
+    settingsStatus,
     setSettingsStatus,
     activePanel,
     setActivePanel,
@@ -63,7 +64,7 @@ const App = (): JSX.Element => {
           const link = document.createElement('a');
           link.href = blobURL;
           link.download = 'icons.zip';
-          // link.click();
+          link.click();
         }).then(() => {
           // setTimeout(() => {
           //   setActivePanel(<SuccessPanel length={pluginMessage.exportAssets.length} />);
@@ -116,6 +117,10 @@ const App = (): JSX.Element => {
         if (!userHasUpdatedSize) {
           setSizeValue(userSettings.size || `${modeNumber(userSelection.map((node) => node.size))}px`);
         }
+      }
+
+      if (settingsStatus) {
+        setSettingsStatus(false);
       }
     }
   };
