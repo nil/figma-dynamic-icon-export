@@ -12,7 +12,11 @@ const SelectionPanel = (): JSX.Element => {
   } = useAppState();
 
   // Filtered list after search
-  const filteredList = selectedNodes.filter((entry) => entry.name.indexOf(searchValue) !== -1);
+  const filteredList = selectedNodes.filter((entry) => {
+    const name = entry.name.toLowerCase();
+
+    return name.indexOf(searchValue.toLowerCase()) !== -1;
+  });
 
   // Render empty state if the search does not return any result
   const panelToShow = (): JSX.Element => {
