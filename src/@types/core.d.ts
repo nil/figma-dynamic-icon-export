@@ -6,11 +6,11 @@ interface ErrorEntry {
 
 type AllowedNodes = FrameNode | ComponentNode;
 
-interface UserSettings {
-  size: string;
-  sizeExplicit: boolean;
-  sizeUnits: boolean;
-  sizeName: 'beginning' | 'end' | 'appendix';
+interface UserValues {
+  sizeValue: string;
+  sizeMethod: 'not' | 'beginning' | 'end' | 'appendix';
+  prefix: string;
+  suffix: string;
 }
 
 interface SelectedNode {
@@ -23,5 +23,5 @@ interface SelectedNode {
 
 interface ExportNodes {
   nodes: string[];
-  size: string;
+  values: UserValues;
 }

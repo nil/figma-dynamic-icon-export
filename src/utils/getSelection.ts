@@ -2,7 +2,7 @@
  * Get the current selected nodes, excluding those that
  * are not allowed, and return a list of formatted values.
  */
-export default function (): object {
+export default function (): SelectedNode[] {
   const nodeList: SelectedNode[] = [];
   const { selection } = figma.currentPage;
 

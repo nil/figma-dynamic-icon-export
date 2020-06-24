@@ -9,7 +9,7 @@ type Props = {
 const Button = ({ text, disabled, onClick }: Props): JSX.Element => (
   <button
     type="button"
-    className="footer-button button button--primary"
+    className="ui-button type type--medium type--inverse"
     disabled={!!disabled}
     onClick={onClick}
   >
