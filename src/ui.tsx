@@ -132,12 +132,9 @@ const App = (): JSX.Element => {
 
   // Toggle dropdown status
   const toggleDropdown = (): void => {
-    if (isDropdownOpen) {
-      parent.postMessage({ pluginMessage: { pluginHeight: 237 } }, '*');
-    } else {
-      parent.postMessage({ pluginMessage: { pluginHeight: 277 } }, '*');
-    }
+    const size = isDropdownOpen ? -40 : 40;
 
+    parent.postMessage({ pluginMessage: { pluginHeight: size } }, '*');
     setIsDropdownOpen(!isDropdownOpen);
   };
 

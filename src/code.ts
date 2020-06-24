@@ -6,6 +6,7 @@ import exportedName from './utils/exportedName';
 
 
 let exportAssets: { name: string; svg: string }[] = [];
+let currentUiSize = 237;
 let userSettings = {
   size: undefined,
   sizeExplicit: false,
@@ -34,7 +35,7 @@ figma.clientStorage.getAsync('userSettings').then((resp): void => {
   if (initialSelection.length === 0) {
     figma.closePlugin('⚠ Select at least one component or frame');
   } else {
-    figma.showUI(__html__, { width: 300, height: 237 });
+    figma.showUI(__html__, { width: 300, height: currentUiSize });
     figma.ui.postMessage({ initialSelection });
   }
 });
@@ -128,6 +129,9 @@ figma.ui.onmessage = (message): void => {
 
   // Update the height of the plugin UI
   if (message.pluginHeight) {
-    figma.ui.resize(300, message.pluginHeight);
+    const newUiSize = currentUiSize + message.pluginHeight;
+
+    figma.ui.resize(300, newUiSize);
+    currentUiSize = newUiSize;
   }
 };
