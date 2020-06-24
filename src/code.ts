@@ -33,7 +33,7 @@ figma.clientStorage.getAsync('userSettings').then((resp): void => {
 
   // Send initial selection
   if (initialSelection.nodeList.length === 0) {
-    figma.closePlugin('⚠ Select at least one component or frame');
+    figma.closePlugin('⚠ Select at least one Frame or Component');
   } else {
     figma.showUI(__html__, { width: 300, height: currentUiSize });
     figma.ui.postMessage({ initialSelection });
