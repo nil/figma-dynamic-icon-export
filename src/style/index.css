@@ -192,3 +192,19 @@ body {
     border-color: red;
   }
 }
+
+.warning {
+  display: grid;
+  grid-template-columns: 16px auto 1fr;
+  margin: 8px 0 18px;
+
+  &-signal {
+    padding-left: 2px;
+
+    color: red;
+  }
+
+  &-message {
+    border-bottom: 1px solid var(--red);
+  }
+}

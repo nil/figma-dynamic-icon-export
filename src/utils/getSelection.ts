@@ -2,8 +2,9 @@
  * Get the current selected nodes, excluding those that
  * are not allowed, and return a list of formatted values.
  */
-export default function (): SelectedNode[] {
+export default function (): { nodeList: SelectedNode[]; disallowedList: string[]} {
   const nodeList: SelectedNode[] = [];
+  const disallowedList: string[] = [];
   const { selection } = figma.currentPage;
 
   selection.forEach((node) => {
@@ -15,8 +16,10 @@ export default function (): SelectedNode[] {
         size: node.width,
         status: true
       });
+    } else {
+      disallowedList.push(node.id);
     }
   });
 
-  return nodeList;
+  return { nodeList, disallowedList };
 }

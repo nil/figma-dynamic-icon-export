@@ -17,6 +17,7 @@ const App = (): JSX.Element => {
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [isTooltipVisible, setIsTooltipVisible] = React.useState(false);
   const [isSizeMethodAvailable, setIsSizeMethodAvailable] = React.useState(true);
+  const [isWarningVisible, setIsWarningVisible] = React.useState(false);
 
   const {
     selectedNodes,
@@ -58,27 +59,43 @@ const App = (): JSX.Element => {
 
     // Render list of selected nodes or an empty state
     if (userSelection) {
+      const { nodeList } = userSelection;
+
       // Copy status to the nodes that where previously unselected
-      userSelection.forEach((entry: SelectedNode, index: number) => {
+      nodeList.forEach((entry: SelectedNode, index: number) => {
         const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
 
         if (identicalNode) {
-          userSelection[index].status = identicalNode.status;
+          nodeList[index].status = identicalNode.status;
         }
       });
 
-      setSelectedNodes(userSelection);
+      setSelectedNodes(nodeList);
 
-      if (userSelection.length === 0) {
+      if (nodeList.length === 0) {
         if (!userHasUpdatedSize) {
           setUserValues({ ...userValues, sizeValue: '' });
         }
       } else if (!userHasUpdatedSize) {
         setUserValues({
           ...userValues,
-          sizeValue: `${modeNumber(userSelection.map((node) => node.size))}px`
+          sizeValue: `${modeNumber(nodeList.map((node) => node.size))}px`
         });
       }
+    }
+
+    if (userSelection.disallowedList.length !== 0) {
+      if (!isWarningVisible) {
+        parent.postMessage({ pluginMessage: { pluginHeight: 32 } }, '*');
+      }
+
+      setIsWarningVisible(true);
+    } else {
+      if (isWarningVisible) {
+        parent.postMessage({ pluginMessage: { pluginHeight: -32 } }, '*');
+      }
+
+      setIsWarningVisible(false);
     }
   };
 
@@ -198,6 +215,15 @@ const App = (): JSX.Element => {
         </div>
 
       </section>
+
+      {isWarningVisible
+        ? (
+          <section className="warning">
+            <div className="warning-signal">!</div>
+            <div className="warning-message">Only Frames and Components will be exported</div>
+          </section>
+        ) : null}
+
       <section className="controls">
         <Button
           text={`Export ${selectedNodes.length} icon${selectedNodes.length !== 1 ? 's' : ''}`}
