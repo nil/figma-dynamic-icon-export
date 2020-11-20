@@ -1,57 +1,49 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import JSZip from '../node_modules/jszip/dist/jszip.min';
+import useAppState, { AppStateProvider } from './utils/appState';
+import exportedName from './utils/exportedName';
+import modeNumber from './utils/modeNumber';
 
-import ErrorPanel from './panels/ErrorPanel';
-import SettingsPanel from './panels/SettingsPanel';
-import LoadingPanel from './panels/LoadingPanel';
-import SuccessPanel from './panels/SuccessPanel';
+import Button from './components/Button';
+import InputSelect from './components/InputSelect';
+import InputText from './components/InputText';
 
-import HeaderEntry from './components/HeaderEntry';
-import IconReload from './assets/reload.svg';
-import IconSettings from './assets/settings.svg';
-
-import './style/figma.css';
+import 'figma-plugin-ds/dist/figma-plugin-ds.css';
 import './style/index.css';
 
 
 const App = (): JSX.Element => {
-  const [runStatus, setRunStatus] = React.useState(true);
-  const [settingsPanel, setSettingsPanel] = React.useState(false);
-  const [activePanel, setActivePanel] = React.useState(<LoadingPanel />);
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [isTooltipVisible, setIsTooltipVisible] = React.useState(false);
+  const [isSizeMethodAvailable, setIsSizeMethodAvailable] = React.useState(true);
+  const [isWarningVisible, setIsWarningVisible] = React.useState(false);
+
+  const {
+    selectedNodes,
+    setSelectedNodes,
+    userValues,
+    setUserValues,
+    userHasUpdatedSize
+  } = useAppState();
+
 
   /**
    * Recive messages from code.ts
    */
   window.onmessage = async (event): Promise<void> => {
+    if (!event.data.pluginMessage) { return; }
+
     const { pluginMessage } = event.data;
-
-    if (!pluginMessage) { return; }
-
-    // Replace current panel with a new one
-    if (pluginMessage.changePanel) {
-      switch (pluginMessage.changePanel.name) {
-        default:
-        case 'loading': setActivePanel(<LoadingPanel />); break;
-        case 'settings': setActivePanel(<SettingsPanel />); break;
-        // case 'success': setActivePanel(<SuccessPanel />); break;
-      }
-    }
-
-    // Show error message
-    if (pluginMessage.showError) {
-      setActivePanel(<ErrorPanel entries={pluginMessage.showError} />);
-      setRunStatus(false);
-      setSettingsPanel(false);
-    }
+    const userSelection = pluginMessage.initialSelection || pluginMessage.updateSelection;
 
     // Generate exportable zip
-    if (pluginMessage.exportableAssets) {
+    if (pluginMessage.exportAssets) {
       // eslint-disable-next-line consistent-return
       return new Promise(() => {
         const zip = new JSZip();
 
-        pluginMessage.exportableAssets.forEach(({ name, svg }) => {
+        pluginMessage.exportAssets.forEach(({ name, svg }) => {
           zip.file(`${name}.svg`, svg);
         });
 
@@ -61,50 +53,186 @@ const App = (): JSX.Element => {
           link.href = blobURL;
           link.download = 'icons.zip';
           link.click();
-        }).then(() => {
-          setTimeout(() => {
-            setActivePanel(<SuccessPanel length={pluginMessage.exportableAssets.length} />);
-            setRunStatus(false);
-            setSettingsPanel(false);
-          }, 2000);
         });
+      });
+    }
+
+    // Render list of selected nodes or an empty state
+    if (userSelection) {
+      const { nodeList } = userSelection;
+
+      // Copy status to the nodes that where previously unselected
+      nodeList.forEach((entry: SelectedNode, index: number) => {
+        const identicalNode = selectedNodes.filter((e: SelectedNode) => e.id === entry.id)[0];
+
+        if (identicalNode) {
+          nodeList[index].status = identicalNode.status;
+        }
+      });
+
+      setSelectedNodes(nodeList);
+
+      if (nodeList.length === 0) {
+        if (!userHasUpdatedSize) {
+          setUserValues({ ...userValues, sizeValue: '' });
+        }
+      } else if (!userHasUpdatedSize) {
+        setUserValues({
+          ...userValues,
+          sizeValue: `${modeNumber(nodeList.map((node) => node.size))}px`
+        });
+      }
+    }
+
+    if (userSelection.disallowedList.length !== 0) {
+      if (!isWarningVisible) {
+        parent.postMessage({ pluginMessage: { pluginHeight: 32 } }, '*');
+      }
+
+      setIsWarningVisible(true);
+    } else {
+      if (isWarningVisible) {
+        parent.postMessage({ pluginMessage: { pluginHeight: -32 } }, '*');
+      }
+
+      setIsWarningVisible(false);
+    }
+  };
+
+
+  React.useEffect(() => {
+    if (userValues.sizeMethod === 'not' && /,.*?\d/.test(userValues.sizeValue)) {
+      setIsSizeMethodAvailable(false);
+    } else {
+      setIsSizeMethodAvailable(true);
+    }
+  });
+
+
+  // Export nodes
+  const createExport = (): void => {
+    const exportNodes: ExportNodes = {
+      nodes: selectedNodes.map((node) => node.id),
+      values: userValues
+    };
+
+    parent.postMessage({
+      pluginMessage: {
+        exportNodes: {
+          nodes: exportNodes,
+          values: userValues
+        }
+      }
+    }, '*');
+  };
+
+
+  // Update size value input
+  const fixSizeValueInput = (event): void => {
+    if (event.target.value === '') {
+      setUserValues({
+        ...userValues,
+        sizeValue: `${modeNumber(selectedNodes.map((node) => node.size))}px`
       });
     }
   };
 
-  /**
-   * Run plugin again
-   */
-  const runAgain = (): void => {
-    if (!runStatus) {
-      window.parent.postMessage({ pluginMessage: { runAgain: true } }, '*');
-      setRunStatus(true);
-      setSettingsPanel(false);
-    }
+
+  // Example of exported name
+  const selectExample = (): string => {
+    const match = userValues.sizeValue.match(/(\d+)/);
+    const size = match ? match[0] : '24';
+
+    return exportedName('icon', size, userValues);
   };
 
-  /**
-   * Open settings panel
-   */
-  const openSettings = (): void => {
-    window.parent.postMessage({ pluginMessage: { requestSettings: true } }, '*');
-    setActivePanel(<SettingsPanel />);
-    setSettingsPanel(true);
+
+  // Toggle dropdown status
+  const toggleDropdown = (): void => {
+    const size = isDropdownOpen ? -40 : 40;
+
+    parent.postMessage({ pluginMessage: { pluginHeight: size } }, '*');
+    setIsDropdownOpen(!isDropdownOpen);
   };
 
+
+  /**
+   * UI markup
+   */
   return (
     <>
-      <header className={`header ${settingsPanel ? 'header--open' : ''}`}>
-        <div className="header-layout type type--pos-small-bold">
-          <HeaderEntry text="Run again" icon={IconReload} disabled={runStatus} onClick={runAgain} />
-          <HeaderEntry text="Settings" icon={IconSettings} open={settingsPanel} onClick={openSettings} />
+      <section className="values">
+        <InputText id="sizeValue" label="Size" placeholder="auto" onBlur={fixSizeValueInput} />
+        <InputSelect
+          id="sizeMethod"
+          className={isSizeMethodAvailable ? '' : 'error'}
+          options={[
+            { value: 'not', label: 'Don’t include size in icon name' },
+            { value: 'beginning', label: 'Folder at the beginning' },
+            { value: 'end', label: 'Folder at the end' },
+            { value: 'appendix', label: 'Appendix at the end' }
+          ]}
+        />
+
+        <div className="values-example">
+          {`Example: ${selectExample()}.svg`}
         </div>
-      </header>
-      <main className="main">
-        {activePanel}
-      </main>
+
+        <div className={`values-dropdown ${isDropdownOpen ? 'open' : ''}`}>
+          <div
+            className="values-dropdown-label"
+            role="button"
+            tabIndex={0}
+            onClick={toggleDropdown}
+          >
+            <div className="values-dropdown-caret" />
+            <div className="values-dropdown-text">Add a prefix or suffix</div>
+            <div className="values-tooltip">
+              <div
+                className="values-tooltip-signal type--medium"
+                role="button"
+                tabIndex={0}
+                onMouseEnter={(): void => { setIsTooltipVisible(true); }}
+                onMouseLeave={(): void => { setIsTooltipVisible(false); }}
+              >
+                ?
+              </div>
+              <div className={`values-tooltip-content ${isTooltipVisible ? 'visible' : ''} type type--negative`}>
+                <span className="type--bold">$n</span>
+                : number
+                {' '}
+                <br />
+                {' '}
+                <span className="type--bold">$s</span>
+                : size
+              </div>
+            </div>
+          </div>
+          <div className="values-dropdown-content">
+            <InputText id="prefix" placeholder="Prefix" />
+            <InputText id="suffix" placeholder="Suffix" />
+          </div>
+        </div>
+
+      </section>
+
+      {isWarningVisible
+        ? (
+          <section className="warning">
+            <div className="warning-signal">!</div>
+            <div className="warning-message">Only Frames and Components will be exported</div>
+          </section>
+        ) : null}
+
+      <section className="controls">
+        <Button
+          text={`Export ${selectedNodes.length} icon${selectedNodes.length !== 1 ? 's' : ''}`}
+          disabled={selectedNodes.length === 0 || !isSizeMethodAvailable}
+          onClick={createExport}
+        />
+      </section>
     </>
   );
 };
 
-ReactDOM.render(<App />, document.getElementById('plugin-ui'));
+ReactDOM.render(<AppStateProvider><App /></AppStateProvider>, document.getElementById('plugin-ui'));

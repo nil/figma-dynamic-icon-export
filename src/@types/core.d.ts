@@ -6,13 +6,22 @@ interface ErrorEntry {
 
 type AllowedNodes = FrameNode | ComponentNode;
 
-interface FindNodes {
-  duplicates: boolean;
-  nodes: AllowedNodes[] | AllowedNodes[][];
+interface UserValues {
+  sizeValue: string;
+  sizeMethod: 'not' | 'beginning' | 'end' | 'appendix';
+  prefix: string;
+  suffix: string;
 }
 
-interface UserSettings {
-  start: string;
-  end: string;
-  size: string;
+interface SelectedNode {
+  name: string;
+  id: string;
+  type: string;
+  size: number;
+  status: boolean;
+}
+
+interface ExportNodes {
+  nodes: string[];
+  values: UserValues;
 }
